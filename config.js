@@ -1,0 +1,1 @@
+window.YE_CONFIG={url:"",key:""};
