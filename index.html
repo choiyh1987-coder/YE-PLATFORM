@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#392821">
-<title>YE PLATFORM v1.1.4</title>
+<title>YE PLATFORM v1.1.5</title>
 <style>
 *{box-sizing:border-box} :root{
  --brown:#392821;--brown2:#271b17;--gold:#d6ad72;--cream:#f6f0e9;--paper:#fff;
@@ -161,7 +161,7 @@ th,td{padding:11px 12px;font-size:12px}
  <div class="profile"><strong id="profileName">최윤희</strong><span id="profileRole">최고관리자</span><button id="logoutBtn">로그아웃</button></div>
 </aside>
 <main>
- <header><button id="openSide" class="ghost mobile">☰</button><div><p id="area" class="eyebrow">YE PLATFORM · v1.1.4</p><h2 id="title">홈 · 오늘의 브리핑</h2></div><button id="quickBtn" class="primary">＋ 빠른 등록</button></header>
+ <header><button id="openSide" class="ghost mobile">☰</button><div><p id="area" class="eyebrow">YE PLATFORM · v1.1.5</p><h2 id="title">홈 · 오늘의 브리핑</h2></div><button id="quickBtn" class="primary">＋ 빠른 등록</button></header>
  <section id="content"></section>
 </main>
 </div>
@@ -244,18 +244,11 @@ window.YE_SAFE_LOGIN=async function(){
 
 window.YE_RENDER_PAGE=function(page){
   try{
-    if(typeof render==="function"){
-      render(page);
-      return;
-    }
-    var title=document.getElementById("title");
+    if(typeof render==="function") return render(page);
     var content=document.getElementById("content");
-    if(title) title.textContent=page==="home"?"홈 · 오늘의 브리핑":page;
-    if(content) content.innerHTML='<div class="panel"><h3>화면을 불러오는 중입니다.</h3><p class="muted">새로고침 후 다시 시도해주세요.</p></div>';
+    if(content) content.innerHTML='<div class="panel"><h3>화면 모듈 준비 중</h3><p class="muted">잠시 후 다시 눌러주세요.</p></div>';
   }catch(e){
     console.error("render error",e);
-    var c=document.getElementById("content");
-    if(c)c.innerHTML='<div class="panel"><h3>화면 표시 오류</h3><p class="muted">'+String(e.message||e)+'</p></div>';
   }
 };
 document.addEventListener("click",function(e){
@@ -634,16 +627,55 @@ function render(p){
     currentPage=p;
     const titleEl=$("#title"), areaEl=$("#area"), contentEl=$("#content");
     if(titleEl) titleEl.textContent=names[p]||"YE PLATFORM";
-    if(areaEl) areaEl.textContent=p==="home"?"YE PLATFORM":(["yuni","goals","monthly","weekly","today","projects","calendar","habits","gratitude","budget","sns"].includes(p)?"유니":(["assistant","settings"].includes(p)?"YE PLATFORM":"예에스테틱"));
-    const fn=renders[p]||home;
+    if(areaEl){
+      areaEl.textContent=p==="home"?"YE PLATFORM · v1.1.5":
+        (["yuni","goals","monthly","weekly","today","projects","calendar","habits","gratitude","budget","sns"].includes(p)?"유니":
+        (["assistant","settings"].includes(p)?"YE PLATFORM · v1.1.5":"예에스테틱"));
+    }
     if(!contentEl) throw new Error("content 영역을 찾지 못했습니다.");
-    contentEl.innerHTML=fn();
+
+    let htmlPage="";
+    switch(p){
+      case "home": htmlPage=home(); break;
+      case "shop": htmlPage=shopDashboard(); break;
+      case "appointments": htmlPage=appointments(); break;
+      case "customers": htmlPage=customers(); break;
+      case "consultations": htmlPage=consultations(); break;
+      case "treatments": htmlPage=treatments(); break;
+      case "photos": htmlPage=photos(); break;
+      case "passes": htmlPage=passes(); break;
+      case "programs": htmlPage=programs(); break;
+      case "products": htmlPage=products(); break;
+      case "inventory": htmlPage=inventory(); break;
+      case "sales": htmlPage=sales(); break;
+      case "expenses": htmlPage=expenses(); break;
+      case "settlement": htmlPage=settlement(); break;
+      case "marketing": htmlPage=marketing(); break;
+      case "reviews": htmlPage=reviews(); break;
+      case "documents": htmlPage=documents(); break;
+      case "yuni": htmlPage=yuniDashboard(); break;
+      case "goals": htmlPage=goals(); break;
+      case "monthly": htmlPage=monthly(); break;
+      case "weekly": htmlPage=weekly(); break;
+      case "today": htmlPage=todayPlan(); break;
+      case "projects": htmlPage=projects(); break;
+      case "calendar": htmlPage=calendar(); break;
+      case "habits": htmlPage=habits(); break;
+      case "gratitude": htmlPage=gratitude(); break;
+      case "budget": htmlPage=budget(); break;
+      case "sns": htmlPage=sns(); break;
+      case "assistant": htmlPage=assistant(); break;
+      case "settings": htmlPage=settings(); break;
+      default: htmlPage=home(); break;
+    }
+
+    contentEl.innerHTML=htmlPage;
     $$("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===p));
     if(innerWidth<781)$("#side")?.classList.remove("open");
   }catch(e){
     console.error("YE render error",p,e);
     const c=$("#content");
-    if(c)c.innerHTML=`<div class="panel"><div class="ops-kicker">SYSTEM</div><h3>화면을 불러오지 못했습니다.</h3><p class="muted">${e.message||e}</p><button class="primary" onclick="location.reload()">새로고침</button></div>`;
+    if(c)c.innerHTML=`<div class="panel"><div class="ops-kicker">SYSTEM</div><h3>${names[p]||p} 화면을 불러오지 못했습니다.</h3><p class="muted">${e.message||e}</p><button class="primary" onclick="location.reload()">새로고침</button></div>`;
   }
 }
 
