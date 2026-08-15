@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#392821">
-<title>YE PLATFORM v1.1.1</title>
+<title>YE PLATFORM v1.1.2</title>
 <style>
 *{box-sizing:border-box} :root{
  --brown:#392821;--brown2:#271b17;--gold:#d6ad72;--cream:#f6f0e9;--paper:#fff;
@@ -130,9 +130,9 @@ th,td{padding:11px 12px;font-size:12px}
   <p class="muted">예에스테틱과 유니의 통합 운영 플랫폼</p>
   <label class="form-label">이메일<input id="email" class="control" type="email" autocomplete="email"></label>
   <label class="form-label">비밀번호<input id="password" class="control" type="password" autocomplete="current-password"></label>
-  <button id="loginBtn" class="primary full">로그인</button>
-  <button id="previewBtn" class="secondary full">대시보드 미리보기</button>
-  <p id="loginMsg" class="msg"></p><p id="startupMsg" class="small" style="color:#b33d35"></p>
+  <button id="loginBtn" class="primary full" type="button" onclick="YE_SAFE_LOGIN()">로그인</button>
+  <button id="previewBtn" class="secondary full" type="button" onclick="YE_SAFE_PREVIEW()">대시보드 미리보기</button>
+  <p id="loginMsg" class="msg"></p><p id="startupMsg" class="small" style="color:#b33d35"></p><p class="small" style="margin-top:8px">YE PLATFORM v1.1.2 로그인 복구</p>
  </div>
 </section>
 
@@ -170,6 +170,95 @@ th,td{padding:11px 12px;font-size:12px}
 <div id="toast" class="toast hidden"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+window.YE_LOGIN_CONFIG={
+  url:"https://lvfaomlpcrrnffncvffy.supabase.co",
+  key:"sb_publishable_4ZGSNTPI3zW-j-SYp4pHrA_quzvTIPG"
+};
+window.YE_SET_LOGIN_MESSAGE=function(msg){
+  var el=document.getElementById("loginMsg");
+  if(el) el.textContent=msg||"";
+};
+window.YE_LOAD_SUPABASE=async function(){
+  if(window.supabase && window.supabase.createClient) return true;
+  var sources=[
+    "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+    "https://unpkg.com/@supabase/supabase-js@2"
+  ];
+  for(var i=0;i<sources.length;i++){
+    try{
+      await new Promise(function(resolve,reject){
+        var s=document.createElement("script");
+        s.src=sources[i];
+        s.onload=resolve;
+        s.onerror=reject;
+        document.head.appendChild(s);
+      });
+      if(window.supabase && window.supabase.createClient) return true;
+    }catch(e){}
+  }
+  return false;
+};
+window.YE_SAFE_LOGIN=async function(){
+  var btn=document.getElementById("loginBtn");
+  var email=(document.getElementById("email")?.value||"").trim();
+  var password=document.getElementById("password")?.value||"";
+  window.YE_SET_LOGIN_MESSAGE("");
+  if(!email || !password){
+    window.YE_SET_LOGIN_MESSAGE("이메일과 비밀번호를 모두 입력해주세요.");
+    return;
+  }
+  try{
+    if(btn){btn.disabled=true;btn.textContent="로그인 중...";}
+    var ok=await window.YE_LOAD_SUPABASE();
+    if(!ok){
+      window.YE_SET_LOGIN_MESSAGE("Supabase 연결 모듈을 불러오지 못했습니다. 인터넷 연결 후 새로고침해주세요.");
+      return;
+    }
+    var c=window.supabase.createClient(window.YE_LOGIN_CONFIG.url,window.YE_LOGIN_CONFIG.key);
+    var result=await c.auth.signInWithPassword({email:email,password:password});
+    if(result.error){
+      window.YE_SET_LOGIN_MESSAGE(result.error.message);
+      return;
+    }
+    try{
+      if(typeof client!=="undefined") client=c;
+      if(typeof user!=="undefined") user=result.data.user;
+      if(typeof preview!=="undefined") preview=false;
+      if(typeof enter==="function"){
+        await enter();
+      }else{
+        window.YE_SET_LOGIN_MESSAGE("로그인은 성공했습니다. 화면을 다시 불러옵니다.");
+        setTimeout(function(){location.reload();},600);
+      }
+    }catch(e){
+      window.YE_SET_LOGIN_MESSAGE("로그인은 성공했지만 화면을 여는 중 오류가 있습니다: "+(e.message||e));
+    }
+  }catch(e){
+    window.YE_SET_LOGIN_MESSAGE("로그인 연결 오류: "+(e.message||e));
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent="로그인";}
+  }
+};
+window.YE_SAFE_PREVIEW=function(){
+  try{
+    if(typeof preview!=="undefined") preview=true;
+    if(typeof user!=="undefined") user=null;
+    if(typeof enter==="function"){
+      enter();
+    }else{
+      document.getElementById("login")?.classList.add("hidden");
+      document.getElementById("app")?.classList.remove("hidden");
+      var c=document.getElementById("content");
+      if(c)c.innerHTML='<div class="panel"><h3>미리보기 화면</h3><p class="muted">기본 화면 모듈을 불러오는 중입니다.</p></div>';
+    }
+  }catch(e){
+    window.YE_SET_LOGIN_MESSAGE("미리보기 오류: "+(e.message||e));
+  }
+};
+</script>
+
 <script>
 const CONFIG={url:"https://lvfaomlpcrrnffncvffy.supabase.co",key:"sb_publishable_4ZGSNTPI3zW-j-SYp4pHrA_quzvTIPG"};
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
