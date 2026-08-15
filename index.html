@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#3b2922">
-<title>YE PLATFORM v1.3</title>
+<title>YE PLATFORM v1.4</title>
 <style>
 *{box-sizing:border-box} :root{
  --brown:#3b2922;--brown2:#281b17;--gold:#c79659;--cream:#f6f0e9;--paper:#fff;
@@ -52,6 +52,19 @@ header h2{font-size:23px;margin:3px 0 0}#content{padding:24px 28px;max-width:160
 .mobile{display:none}
 @media(max-width:1100px){.cards{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:repeat(2,1fr)}.span4{grid-column:span 2}.hero{grid-template-columns:1fr}}
 @media(max-width:780px){.app{display:block}aside{position:fixed;left:-270px;width:244px;z-index:80;transition:.2s}aside.open{left:0}.mobile{display:inline-block}header{height:72px;padding:11px 14px}header h2{font-size:19px}#content{padding:14px}.cards,.grid,.quickcards{grid-template-columns:1fr}.span2,.span4{grid-column:span 1}.journal-layout{grid-template-columns:1fr}.journal-wide{grid-column:auto}.journal-lines{grid-template-columns:1fr}.form-grid,.reflection-grid,.sales-report-grid{grid-template-columns:1fr}.month-cell{min-height:80px;padding:5px}.photo-preview{grid-template-columns:repeat(2,1fr)}}
+
+/* v1.4 연결 + 엑셀형 자동화 */
+.sheet{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.sheet-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);background:#faf7f3}
+.sheet-toolbar .right{display:flex;gap:7px;flex-wrap:wrap}
+.sheet table{border:0;border-radius:0}
+.sheet tfoot td{font-weight:900;background:#fbf6ef}
+.summary-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}
+.sum-box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}.sum-box span{font-size:10px;color:var(--muted)}.sum-box b{display:block;font-family:var(--serif);font-size:22px;margin-top:5px}
+.link-card{border:1px solid var(--line);background:#fff;border-radius:14px;padding:14px;text-align:left}
+.file-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;background:#f3eee8;font-size:10px}
+@media(max-width:900px){.summary-strip{grid-template-columns:repeat(2,1fr)}}
+
 </style>
 </head>
 <body>
@@ -63,7 +76,7 @@ header h2{font-size:23px;margin:3px 0 0}#content{padding:24px 28px;max-width:160
   <label class="label">비밀번호<input id="password" class="control" type="password"></label>
   <button id="loginBtn" class="primary full" type="button">로그인</button>
   <button id="previewBtn" class="secondary full" type="button">대시보드 미리보기</button>
-  <p id="loginMsg" class="msg"></p><p class="small">YE PLATFORM v1.3 전체 등록버튼 복구</p>
+  <p id="loginMsg" class="msg"></p><p class="small">YE PLATFORM v1.4 전체 등록버튼 복구</p>
  </div>
 </section>
 
@@ -85,7 +98,7 @@ header h2{font-size:23px;margin:3px 0 0}#content{padding:24px 28px;max-width:160
  <div class="profile"><strong>최윤희</strong><span id="profileEmail">최고관리자</span><button id="logoutBtn">로그아웃</button></div>
 </aside>
 <main>
-<header><button id="openSide" class="ghost mobile">☰</button><div><p id="area" class="eyebrow">YE PLATFORM · v1.3</p><h2 id="title">홈 · 오늘의 브리핑</h2></div><button id="quickBtn" class="primary">＋ 빠른 등록</button></header>
+<header><button id="openSide" class="ghost mobile">☰</button><div><p id="area" class="eyebrow">YE PLATFORM · v1.4</p><h2 id="title">홈 · 오늘의 브리핑</h2></div><button id="quickBtn" class="primary">＋ 빠른 등록</button></header>
 <section id="content"></section>
 </main>
 </div>
@@ -99,7 +112,7 @@ header h2{font-size:23px;margin:3px 0 0}#content{padding:24px 28px;max-width:160
 const CONFIG={url:"https://lvfaomlpcrrnffncvffy.supabase.co",key:"sb_publishable_4ZGSNTPI3zW-j-SYp4pHrA_quzvTIPG"};
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 let client=null,user=null,preview=false,currentPage="home",selectedJournalDate=todayISO(),calendarCursor=new Date();
-let D={customers:[],appointments:[],programs:[],products:[],sales:[],expenses:[],sales6:[],expenses6:[],passes:[],tasks:[],goals:[],projects:[],habits:[],gratitudeHistory:[],budget:[],consultations:[],treatments:[],contacts:[]};
+let D={customers:[],appointments:[],programs:[],products:[],sales:[],expenses:[],sales6:[],expenses6:[],passes:[],tasks:[],goals:[],projects:[],habits:[],gratitudeHistory:[],budget:[],consultations:[],treatments:[],photos2:[],marketing2:[],reviews2:[],documents2:[],monthly2:[],weekly2:[],sns2:[],stockMoves:[],contacts:[]};
 const demo={
  appointments:[{time:"10:00",name:"김○○",program:"레디언스필",status:"예약확정"},{time:"13:00",name:"이○○",program:"페이스핏톡스",status:"예약확정"},{time:"16:00",name:"박○○",program:"장벽재생관리",status:"예약대기"}],
  customers:[{name:"김○○",phone:"010-****-1234",customer_grade:"VIP",last_visit_date:"2026-08-10"},{name:"이○○",phone:"010-****-7788",customer_grade:"재방문",last_visit_date:"2026-08-11"}],
@@ -129,29 +142,59 @@ async function safe(tableName,builder){
 }
 async function loadAll(){
  if(preview||!client||!user)return;
- const now=new Date(), t=todayISO(), ms=monthStart(now), me=monthEnd(now), six=monthsAgo(5);
+ const now=new Date(),t=todayISO(),ms=monthStart(now),me=monthEnd(now),six=monthsAgo(5),yearAgo=monthsAgo(12);
  const results=await Promise.all([
-  safe("customers",q=>q.eq("is_deleted",false).order("created_at",{ascending:false}).limit(300)),
-  safe("appointments",q=>q.gte("appointment_date",ms).lte("appointment_date",me).eq("is_deleted",false).order("appointment_date").order("start_time")),
+  safe("customers",q=>q.eq("is_deleted",false).order("created_at",{ascending:false}).limit(500)),
+  safe("appointments",q=>q.gte("appointment_date",six).lte("appointment_date",me).eq("is_deleted",false).order("appointment_date",{ascending:false})),
   safe("programs",q=>q.eq("is_deleted",false).eq("is_active",true).order("name")),
   safe("products",q=>q.eq("is_deleted",false).eq("is_active",true).order("name")),
-  safe("sales",q=>q.gte("sale_date",six).eq("is_deleted",false).order("sale_date")),
-  safe("expenses",q=>q.gte("expense_date",six).eq("is_deleted",false).order("expense_date")),
+  safe("sales",q=>q.gte("sale_date",yearAgo).eq("is_deleted",false).order("sale_date",{ascending:false})),
+  safe("expenses",q=>q.gte("expense_date",yearAgo).eq("is_deleted",false).order("expense_date",{ascending:false})),
   safe("customer_passes",q=>q.eq("is_deleted",false).eq("status","사용중")),
-  safe("yuni_tasks",q=>q.eq("user_id",user.id).eq("task_date",t).order("created_at")),
+  safe("yuni_tasks",q=>q.eq("user_id",user.id).gte("task_date",ms).lte("task_date",me).order("task_date",{ascending:false})),
   safe("yuni_goals",q=>q.eq("user_id",user.id).order("created_at",{ascending:false})),
   safe("yuni_projects",q=>q.eq("user_id",user.id).order("created_at",{ascending:false})),
   safe("yuni_habits",q=>q.eq("user_id",user.id).eq("is_active",true)),
-  safe("yuni_gratitude",q=>q.eq("user_id",user.id).gte("entry_date",monthsAgo(12)).order("entry_date",{ascending:false})),
-  safe("yuni_budget_entries",q=>q.eq("user_id",user.id).gte("entry_date",ms).lte("entry_date",me)),
-  safe("consultations",q=>q.eq("is_deleted",false).order("consultation_date",{ascending:false}).limit(300)),
-  safe("treatment_records",q=>q.eq("is_deleted",false).order("treatment_date",{ascending:false}).limit(500)),
+  safe("yuni_gratitude",q=>q.eq("user_id",user.id).gte("entry_date",yearAgo).order("entry_date",{ascending:false})),
+  safe("yuni_budget_entries",q=>q.eq("user_id",user.id).gte("entry_date",yearAgo).order("entry_date",{ascending:false})),
+  safe("ye_consultations",q=>q.eq("user_id",user.id).order("consultation_date",{ascending:false})),
+  safe("ye_treatments",q=>q.eq("user_id",user.id).order("treatment_date",{ascending:false})),
+  safe("ye_photos",q=>q.eq("user_id",user.id).order("photo_date",{ascending:false})),
+  safe("ye_marketing_records",q=>q.eq("user_id",user.id).order("record_date",{ascending:false})),
+  safe("ye_reviews",q=>q.eq("user_id",user.id).order("review_date",{ascending:false})),
+  safe("ye_documents",q=>q.eq("user_id",user.id).order("created_at",{ascending:false})),
+  safe("ye_monthly_plans",q=>q.eq("user_id",user.id).order("plan_month",{ascending:false})),
+  safe("ye_weekly_plans",q=>q.eq("user_id",user.id).order("week_start",{ascending:false})),
+  safe("ye_sns_notes",q=>q.eq("user_id",user.id).order("created_at",{ascending:false})),
+  safe("inventory_movements",q=>q.eq("user_id",user.id).gte("movement_date",yearAgo).order("movement_date",{ascending:false})),
   safe("customer_contacts",q=>q.order("contact_date",{ascending:false}).limit(500))
  ]);
- [D.customers,D.appointments,D.programs,D.products,D.sales6,D.expenses6,D.passes,D.tasks,D.goals,D.projects,D.habits,D.gratitudeHistory,D.budget,D.consultations,D.treatments,D.contacts]=results;
- D.sales=D.sales6.filter(x=>x.sale_date===t);D.expenses=D.expenses6.filter(x=>x.expense_date===t);
+ [D.customers,D.appointments,D.programs,D.products,D.sales6,D.expenses6,D.passes,D.tasks,D.goals,D.projects,D.habits,D.gratitudeHistory,D.budget,D.consultations,D.treatments,D.photos2,D.marketing2,D.reviews2,D.documents2,D.monthly2,D.weekly2,D.sns2,D.stockMoves,D.contacts]=results;
+ D.sales=D.sales6.filter(x=>x.sale_date===t);
+ D.expenses=D.expenses6.filter(x=>x.expense_date===t);
 }
 function todayAppointments(){return D.appointments.filter(a=>a.appointment_date===todayISO())}
+
+function cname(id){return D.customers.find(c=>c.id===id)?.name||"고객"}
+function pname(id){return D.programs.find(p=>p.id===id)?.name||""}
+function exportCSV(filename,headers,rows){
+ const esc=v=>`"${String(v??"").replace(/"/g,'""')}"`;
+ const csv="\ufeff"+[headers,...rows].map(r=>r.map(esc).join(",")).join("\n");
+ const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);a.download=filename;a.click();URL.revokeObjectURL(a.href);
+}
+async function signedAsset(path){
+ if(!path||!client)return "";
+ try{const {data,error}=await client.storage.from("ye-private-assets").createSignedUrl(path,3600);return error?"":data.signedUrl}catch(e){return ""}
+}
+async function uploadPrivate(file,folder){
+ if(!file||!user)return null;
+ const ext=(file.name.split(".").pop()||"bin").toLowerCase();
+ const path=`${user.id}/${folder}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+ const {error}=await client.storage.from("ye-private-assets").upload(path,file,{upsert:false});
+ if(error)throw error; return path;
+}
+
 function home(){
  const ap=preview?demo.appointments:todayAppointments().map(a=>({time:(a.start_time||"").slice(0,5),name:D.customers.find(c=>c.id===a.customer_id)?.name||"고객",program:D.programs.find(p=>p.id===a.program_id)?.name||"관리",status:a.status}));
  const tasks=preview?demo.tasks:D.tasks.map(t=>t.title);
@@ -169,30 +212,94 @@ function shop(){const month=todayISO().slice(0,7),ms=preview?6200000:D.sales6.fi
 function appointments(){const src=preview?demo.appointments:todayAppointments().map(a=>({time:(a.start_time||"").slice(0,5),name:D.customers.find(c=>c.id===a.customer_id)?.name||"고객",program:D.programs.find(p=>p.id===a.program_id)?.name||"",status:a.status}));return `${pageHead("예약관리","예약 일정과 방문 상태를 관리합니다.",`<button class="primary" data-action="appointment">＋ 예약 등록</button>`)}${table(["시간","고객","프로그램","상태"],src.map(a=>[a.time,a.name,a.program,badge(a.status,a.status==="방문완료"?"green":"")]))}`}
 function customers(){const src=preview?demo.customers:D.customers;return `${pageHead("고객관리","고객 기본정보와 방문 이력을 관리합니다.",`<button class="primary" data-action="customer">＋ 고객 등록</button>`)}${table(["고객명","연락처","등급","최근방문"],src.map(c=>[c.name,c.phone||"",c.customer_grade||"일반",c.last_visit_date||"-"]))}`}
 function generic(title,desc,items){return `${pageHead(title,desc)}<div class="quickcards">${items.map(x=>`<div class="action-card"><b>${x[0]}</b><span>${x[1]}</span></div>`).join("")}</div>`}
-function consultations(){return generic("피부상담","피부 고민과 생활습관, 홈케어를 기록합니다.",[["피부 타입","건성·지성·복합성·민감성"],["핵심 고민","모공·여드름·기미·장벽·탄력"],["생활습관","수면·식습관·홈케어"],["추천관리","프로그램과 주기"],["추천제품","홈케어 제품"],["상담메모","상담 내용 누적"]])}
-function treatments(){return generic("관리기록","방문 후 관리 내용을 기록합니다.",[["프로그램","오늘 관리"],["사용제품","관리실 제품"],["피부반응","관리 전후"],["홈케어","고객 안내"],["다음 권장일","재방문 추천"],["원장메모","추가 기록"]])}
-function photos(){return generic("전후사진","고객 피부사진을 날짜별로 비교합니다.",[["정면","정면 사진"],["좌측","왼쪽 얼굴"],["우측","오른쪽 얼굴"],["근접","모공·트러블"],["BEFORE","관리 전"],["AFTER","관리 후"]])}
+function consultations(){
+ const rows=(preview?[{consultation_date:todayISO(),customer_id:"demo",skin_type:"민감성",concerns:"모공·장벽",recommendation:"레디언스필"}]:D.consultations);
+ return `${pageHead("피부상담","고객별 상담이 Supabase에 저장되고 누적됩니다.",`<button class="primary" data-action="consultation">＋ 상담 등록</button>`)}
+ <div class="summary-strip">${metric("상담 누적",`${rows.length}건`)}${metric("이번 달",`${rows.filter(x=>monthKey(x.consultation_date)===todayISO().slice(0,7)).length}건`)}</div>
+ ${table(["날짜","고객","피부타입","핵심고민","추천관리"],rows.map(x=>[x.consultation_date,preview?"김○○":cname(x.customer_id),x.skin_type||"",x.concerns||"",x.recommendation||""]))}`;
+}
+function treatments(){
+ const rows=preview?[{treatment_date:todayISO(),customer_id:"demo",program_name:"레디언스필",skin_response:"진정 양호",next_date:"2026-08-29"}]:D.treatments;
+ return `${pageHead("관리기록","관리 내용·피부반응·다음 권장일이 고객별로 누적됩니다.",`<button class="primary" data-action="treatment">＋ 관리기록 등록</button>`)}
+ ${table(["날짜","고객","프로그램","피부반응","다음권장일"],rows.map(x=>[x.treatment_date,preview?"김○○":cname(x.customer_id),x.program_name||pname(x.program_id),x.skin_response||"",x.next_date||""]))}`;
+}
+function photos(){
+ const rows=preview?[{photo_date:todayISO(),customer_id:"demo",photo_type:"BEFORE",memo:"볼 모공"}]:D.photos2;
+ return `${pageHead("전후사진","사진은 비공개 Supabase Storage에 저장하고 고객별로 관리합니다.",`<button class="primary" data-action="photo">＋ 사진 등록</button>`)}
+ ${table(["날짜","고객","구분","메모","파일"],rows.map(x=>[x.photo_date,preview?"김○○":cname(x.customer_id),x.photo_type||"",x.memo||"",x.storage_path?'<span class="file-chip">🔒 저장됨</span>':""]))}`;
+}
 function passes(){const rows=(preview?[{pass_name:"집중 개선 A",remaining_sessions:8,end_date:"2026-09-30",status:"사용중"}]:D.passes).map(x=>[x.pass_name||"",`${x.remaining_sessions||0}회`,x.end_date||"",badge(x.status||"사용중","green")]);return `${pageHead("이용권관리","구매·사용·잔여횟수·만료일을 관리합니다.",`<button class="primary" data-action="pass">＋ 이용권 등록</button>`)}${table(["이용권","잔여","종료일","상태"],rows)}`}
 function programs(){const rows=(preview?[{name:"레디언스필",duration_minutes:90,regular_price:500000}]:D.programs).map(x=>[x.name,x.duration_minutes+"분",won(x.regular_price)]);return `${pageHead("프로그램관리","관리 프로그램의 시간과 가격을 관리합니다.",`<button class="primary" data-action="program">＋ 프로그램 등록</button>`)}${table(["프로그램","시간","가격"],rows)}`}
 function products(){const rows=(preview?[{name:"PDRN 메디포뮬러 앰플",brand:"에스테인",sale_price:130000,current_stock:4,safety_stock:2}]:D.products).map(x=>[x.name,x.brand||"",won(x.sale_price),x.current_stock||0,Number(x.current_stock)<=Number(x.safety_stock)?badge("부족"):badge("정상","green")]);return `${pageHead("제품관리","제품·가격·재고를 관리합니다.",`<button class="primary" data-action="product">＋ 제품 등록</button>`)}${table(["제품","브랜드","가격","재고","상태"],rows)}`}
-function inventory(){return `${pageHead("재고관리","안전재고와 부족 제품을 확인합니다.",`<button class="primary" data-action="stock">＋ 재고 조정</button>`)}<div class="cards">${metric("제품",preview?"9종":`${D.products.length}종`)}${metric("재고 부족",preview?"2종":`${D.products.filter(p=>Number(p.current_stock)<=Number(p.safety_stock)).length}종`)}</div>`}
-function sales(){const rows=(preview?[{sale_date:todayISO(),sale_type:"관리",net_amount:450000,payment_status:"결제완료"}]:D.sales).map(x=>[x.sale_date,x.sale_type,won(x.net_amount),badge(x.payment_status||"미결제",x.payment_status==="결제완료"?"green":"")]);return `${pageHead("매출관리","관리·제품·이용권 매출을 관리합니다.",`<button class="primary" data-action="sale">＋ 매출 등록</button>`)}${table(["날짜","구분","금액","상태"],rows)}`}
-function expenses(){const rows=(preview?[{expense_date:todayISO(),category:"소모품",description:"관리 소모품",amount:85000}]:D.expenses).map(x=>[x.expense_date,x.category,x.description||"",won(x.amount)]);return `${pageHead("지출관리","샵 운영비를 기록합니다.",`<button class="primary" data-action="expense">＋ 지출 등록</button>`)}${table(["날짜","분류","내용","금액"],rows)}`}
+function inventory(){
+ const totalQty=D.products.reduce((s,p)=>s+Number(p.current_stock||0),0);
+ const low=D.products.filter(p=>Number(p.current_stock||0)<=Number(p.safety_stock||0));
+ const value=D.products.reduce((s,p)=>s+Number(p.current_stock||0)*Number(p.sale_price||0),0);
+ const rows=D.products.map(p=>[p.name,p.current_stock||0,p.safety_stock||0,won(p.sale_price),won(Number(p.current_stock||0)*Number(p.sale_price||0)),Number(p.current_stock||0)<=Number(p.safety_stock||0)?badge("부족"):badge("정상","green")]);
+ return `${pageHead("재고관리","엑셀처럼 수량·안전재고·재고금액을 자동 계산합니다.",`<div class="toolbar"><button class="ghost" data-export="inventory">CSV</button><button class="primary" data-action="stock">＋ 입출고</button></div>`)}
+ <div class="summary-strip"><div class="sum-box"><span>전체 수량</span><b>${totalQty}개</b></div><div class="sum-box"><span>재고 부족</span><b>${low.length}종</b></div><div class="sum-box"><span>판매가 기준 재고가치</span><b>${won(value)}</b></div><div class="sum-box"><span>입출고 기록</span><b>${D.stockMoves.length}건</b></div></div>
+ <div class="sheet">${table(["제품","현재재고","안전재고","판매가","재고가치","상태"],rows)}</div>`;
+}
+function sales(){
+ const month=todayISO().slice(0,7),m=D.sales6.filter(x=>monthKey(x.sale_date)===month);
+ const total=m.reduce((s,x)=>s+Number(x.net_amount||0),0),care=m.filter(x=>x.sale_type==="관리").reduce((s,x)=>s+Number(x.net_amount||0),0),prod=m.filter(x=>x.sale_type==="제품").reduce((s,x)=>s+Number(x.net_amount||0),0),pass=m.filter(x=>x.sale_type==="이용권").reduce((s,x)=>s+Number(x.net_amount||0),0);
+ return `${pageHead("매출관리","관리·제품·이용권 매출이 자동 합산됩니다.",`<div class="toolbar"><button class="ghost" data-export="sales">CSV</button><button class="primary" data-action="sale">＋ 매출 등록</button></div>`)}
+ <div class="summary-strip"><div class="sum-box"><span>이달 총매출</span><b>${won(total)}</b></div><div class="sum-box"><span>관리매출</span><b>${won(care)}</b></div><div class="sum-box"><span>제품매출</span><b>${won(prod)}</b></div><div class="sum-box"><span>이용권매출</span><b>${won(pass)}</b></div></div>
+ <div class="sheet">${table(["날짜","고객","구분","금액","결제상태"],m.map(x=>[x.sale_date,cname(x.customer_id),x.sale_type,won(x.net_amount),badge(x.payment_status||"결제완료",x.payment_status==="결제완료"?"green":"")]))}</div>`;
+}
+function expenses(){
+ const month=todayISO().slice(0,7),m=D.expenses6.filter(x=>monthKey(x.expense_date)===month),total=m.reduce((s,x)=>s+Number(x.amount||0),0);
+ const cats={};m.forEach(x=>cats[x.category||"기타"]=(cats[x.category||"기타"]||0)+Number(x.amount||0));
+ const top=Object.entries(cats).sort((a,b)=>b[1]-a[1])[0]||["없음",0];
+ return `${pageHead("지출관리","지출을 입력하면 월 합계와 카테고리 합계가 자동 계산됩니다.",`<div class="toolbar"><button class="ghost" data-export="expenses">CSV</button><button class="primary" data-action="expense">＋ 지출 등록</button></div>`)}
+ <div class="summary-strip"><div class="sum-box"><span>이달 지출</span><b>${won(total)}</b></div><div class="sum-box"><span>건수</span><b>${m.length}건</b></div><div class="sum-box"><span>가장 큰 분류</span><b>${top[0]}</b></div><div class="sum-box"><span>해당 금액</span><b>${won(top[1])}</b></div></div>
+ <div class="sheet">${table(["날짜","분류","내용","금액"],m.map(x=>[x.expense_date,x.category||"기타",x.description||"",won(x.amount)]))}</div>`;
+}
 function settlement(){const s=D.sales.reduce((a,x)=>a+Number(x.net_amount||0),0),e=D.expenses.reduce((a,x)=>a+Number(x.amount||0),0);return `${pageHead("자동결산","오늘의 매출과 지출을 자동 합산합니다.")}<div class="cards">${metric("오늘 매출",preview?"₩620,000":won(s))}${metric("오늘 지출",preview?"₩85,000":won(e))}${metric("순이익",preview?"₩535,000":won(s-e))}</div>`}
-function marketing(){return generic("마케팅","채널별 콘텐츠를 관리합니다.",[["인스타그램","릴스·캐러셀"],["스레드","공감형 글"],["네이버 블로그","검색형 글"],["네이버 플레이스","소식·소개"],["당근","지역고객"],["카카오","고객 안내"]])}
-function reviews(){return generic("리뷰관리","리뷰 확인·답변·재활용을 관리합니다.",[["답변대기","새 리뷰"],["베스트리뷰","SNS 재활용"],["키워드분석","고객 장점"],["후기요청","요청 대상"]])}
-function documents(){return generic("문서관리","상담지·동의서·제품자료를 보관합니다.",[["고객문서","상담지·동의서"],["운영문서","메뉴판·가격표"],["제품자료","브로슈어"],["마케팅","포스터·원본"]])}
+function marketing(){
+ const rows=preview?[{record_date:todayISO(),channel:"인스타그램",title:"여름 열감 릴스",status:"게시완료"}]:D.marketing2;
+ return `${pageHead("마케팅","채널별 콘텐츠 계획·진행·게시 상태를 기록합니다.",`<button class="primary" data-action="marketing">＋ 마케팅 등록</button>`)}
+ ${table(["날짜","채널","제목","상태","메모"],rows.map(x=>[x.record_date,x.channel,x.title||"",badge(x.status||"계획"),x.memo||""]))}`;
+}
+function reviews(){
+ const rows=preview?[{review_date:todayISO(),customer_id:"demo",channel:"네이버",rating:5,content:"꼼꼼해서 좋아요",status:"답변완료"}]:D.reviews2;
+ return `${pageHead("리뷰관리","리뷰 원문·평점·답변상태를 누적 관리합니다.",`<button class="primary" data-action="review">＋ 리뷰 등록</button>`)}
+ ${table(["날짜","고객","채널","평점","리뷰","상태"],rows.map(x=>[x.review_date,preview?"김○○":cname(x.customer_id),x.channel||"",x.rating||"",x.content||"",badge(x.status||"답변대기",x.status==="답변완료"?"green":"")]))}`;
+}
+function documents(){
+ const rows=preview?[{title:"고객 상담동의서",category:"고객문서",memo:"기본 양식",storage_path:null}]:D.documents2;
+ return `${pageHead("문서관리","문서 메모와 파일을 비공개 저장소에 보관합니다.",`<button class="primary" data-action="document">＋ 문서 등록</button>`)}
+ ${table(["구분","문서명","메모","파일"],rows.map(x=>[x.category||"",x.title||"",x.memo||"",x.storage_path?'<span class="file-chip">🔒 저장됨</span>':""]))}`;
+}
 function yuni(){const tasks=preview?demo.tasks:D.tasks.map(x=>x.title);return `${pageHead("유니 대시보드","목표·계획·프로젝트·습관·감사일기를 한눈에 봅니다.")}<div class="cards">${metric("오늘 할 일",`${tasks.length}건`)}${metric("목표",preview?"3개":`${D.goals.length}개`)}${metric("프로젝트",preview?"3개":`${D.projects.length}개`)}${metric("습관",preview?"5개":`${D.habits.length}개`)}</div><div class="grid"><div class="panel span2"><h3>오늘의 계획</h3>${tasks.map(t=>`<label class="check"><input type="checkbox"> ${t}</label>`).join("")||'<div class="empty">오늘 할 일이 없습니다.</div>'}</div><div class="panel"><h3>프로젝트</h3>${list((preview?demo.projects:D.projects.map(p=>p.title)).map(x=>({t:x,b:"계속"})))}</div><div class="panel"><h3>오늘의 기록</h3>${list([{t:"감사일기",s:(preview||D.gratitudeHistory.some(x=>x.entry_date===todayISO()))?"작성됨":"미작성",b:"기록"}])}</div></div>`}
 function goals(){return `${pageHead("목표관리","연간·월간·주간 목표를 관리합니다.",`<button class="primary" data-action="goal">＋ 목표 등록</button>`)}${table(["목표","구분","기한","상태"],(preview?[{title:"2026 핵심 목표",goal_type:"annual",due_date:"2026-12-31",status:"진행중"}]:D.goals).map(x=>[x.title,x.goal_type||"",x.due_date||"",badge(x.status||"진행중","green")]))}`}
-function monthly(){return generic("월간계획","이번 달 목표와 주요 계획을 정리합니다.",[["이번 달 목표","핵심 결과"],["예에스테틱","매출·고객"],["유니","개인 목표"],["콘텐츠","SNS 계획"],["재무","사업·개인"],["회고","월말 정리"]])}
-function weekly(){return generic("주간계획","이번 주 해야 할 일을 정리합니다.",[["이번 주 TOP3","핵심업무"],["예약·고객","샵 운영"],["콘텐츠","SNS"],["개인일정","가족·공부"],["습관","반복목표"],["회고","완료·이월"]])}
+function monthly(){
+ const rows=preview?[{plan_month:todayISO().slice(0,7),title:"8월 핵심계획",business_plan:"예약 안정화",personal_plan:"운동 12회",status:"진행중"}]:D.monthly2;
+ return `${pageHead("월간계획","월별 계획을 저장하고 과거 월 계획도 다시 확인합니다.",`<button class="primary" data-action="monthly">＋ 월간계획 등록</button>`)}
+ ${table(["월","제목","예에스테틱","유니","상태"],rows.map(x=>[x.plan_month,x.title||"",x.business_plan||"",x.personal_plan||"",badge(x.status||"진행중","green")]))}`;
+}
+function weekly(){
+ const rows=preview?[{week_start:todayISO(),title:"이번 주 TOP3",top3:"예약관리 / SNS / 운동",status:"진행중"}]:D.weekly2;
+ return `${pageHead("주간계획","주간 TOP3와 업무·개인 계획을 저장합니다.",`<button class="primary" data-action="weekly">＋ 주간계획 등록</button>`)}
+ ${table(["주 시작","제목","TOP3","상태"],rows.map(x=>[x.week_start,x.title||"",x.top3||"",badge(x.status||"진행중","green")]))}`;
+}
 function todayPlan(){return `${pageHead("오늘의 계획","오늘 해야 할 일을 관리합니다.",`<button class="primary" data-action="task">＋ 할 일</button>`)}${table(["할 일","우선순위","상태"],(preview?demo.tasks.map(x=>({title:x,priority:"보통",status:"미완료"})):D.tasks).map(x=>[x.title,x.priority||"보통",badge(x.status||"미완료",x.status==="완료"?"green":"")]))}`}
 function projects(){return `${pageHead("프로젝트","장기 업무를 프로젝트로 관리합니다.",`<button class="primary" data-action="project">＋ 프로젝트 등록</button>`)}${table(["프로젝트","진행률","상태"],(preview?demo.projects.map(x=>({title:x,progress:50,status:"진행중"})):D.projects).map(x=>[x.title,`${x.progress||0}%`,badge(x.status||"진행중","green")]))}`}
 function habits(){return `${pageHead("습관관리","매일 반복할 습관을 체크합니다.",`<button class="primary" data-action="habit">＋ 습관 등록</button>`)}${table(["습관","주기","상태"],(preview?[{title:"물 마시기",frequency:"daily"}]:D.habits).map(x=>[x.title,x.frequency||"daily",badge("진행중","green")]))}`}
-function budget(){return `${pageHead("유니 가계부","개인 수입과 지출을 관리합니다.",`<button class="primary" data-action="budget">＋ 가계부 등록</button>`)}${table(["날짜","구분","내용","금액"],(preview?[{entry_date:todayISO(),entry_type:"지출",description:"식비",amount:32000}]:D.budget).map(x=>[x.entry_date,x.entry_type,x.description||"",won(x.amount)]))}`}
-function sns(){return generic("SNS 정보함","아이디어와 참고자료를 모아둡니다.",[["인스타","릴스·캐러셀"],["스레드","글감"],["블로그","키워드"],["유튜브","영상"],["후킹","첫 문장"],["저장자료","링크·메모"]])}
+function budget(){
+ const month=todayISO().slice(0,7),m=D.budget.filter(x=>monthKey(x.entry_date)===month);
+ const inc=m.filter(x=>x.entry_type==="수입").reduce((s,x)=>s+Number(x.amount||0),0),out=m.filter(x=>x.entry_type==="지출").reduce((s,x)=>s+Number(x.amount||0),0);
+ return `${pageHead("유니 가계부","수입·지출·잔액을 엑셀처럼 자동 합산합니다.",`<div class="toolbar"><button class="ghost" data-export="budget">CSV</button><button class="primary" data-action="budget">＋ 가계부 등록</button></div>`)}
+ <div class="summary-strip"><div class="sum-box"><span>이달 수입</span><b>${won(inc)}</b></div><div class="sum-box"><span>이달 지출</span><b>${won(out)}</b></div><div class="sum-box"><span>이달 잔액</span><b>${won(inc-out)}</b></div><div class="sum-box"><span>기록</span><b>${m.length}건</b></div></div>
+ <div class="sheet">${table(["날짜","구분","분류","내용","금액"],m.map(x=>[x.entry_date,x.entry_type,x.category||"기타",x.description||"",won(x.amount)]))}</div>`;
+}
+function sns(){
+ const rows=preview?[{channel:"인스타",title:"세안 릴스",content:"클렌징겔...",status:"아이디어"}]:D.sns2;
+ return `${pageHead("SNS 정보함","SNS 아이디어·후킹·본문·참고링크를 저장합니다.",`<button class="primary" data-action="sns">＋ SNS 정보 등록</button>`)}
+ ${table(["채널","제목","상태","내용","링크"],rows.map(x=>[x.channel||"",x.title||"",badge(x.status||"아이디어"),x.content||"",x.reference_url||""]))}`;
+}
 function assistant(){return `${pageHead("AI 비서","예에스테틱과 유니 데이터를 바탕으로 업무를 정리합니다.")}<div class="quickcards">${["오늘 해야 할 일 정리","오늘 예약 브리핑","장기 미방문 고객","이번 달 매출 요약","인스타 릴스 초안","오늘 성과 정리"].map(x=>`<button class="action-card" data-ai="${x}"><b>🤖 ${x}</b><span>AI 연결 예정</span></button>`).join("")}</div>`}
-function settings(){return `${pageHead("설정","계정과 연결상태를 확인합니다.")}<div class="grid"><div class="panel"><h3>Supabase</h3>${list([{t:"Project URL",s:CONFIG.url,b:"연결",k:"green"},{t:"로그인 사용자",s:user?.email||"미리보기",b:user?"로그인":"미리보기"}])}</div><div class="panel"><h3>버전</h3><p>YE PLATFORM v1.3 전체 등록버튼 복구</p></div></div>`}
+function settings(){return `${pageHead("설정","계정과 연결상태를 확인합니다.")}<div class="grid"><div class="panel"><h3>Supabase</h3>${list([{t:"Project URL",s:CONFIG.url,b:"연결",k:"green"},{t:"로그인 사용자",s:user?.email||"미리보기",b:user?"로그인":"미리보기"}])}</div><div class="panel"><h3>버전</h3><p>YE PLATFORM v1.4 전체 등록버튼 복구</p></div></div>`}
 
 function parseJournal(row){if(!row)return{records:[],insight:"",good:"",bad:"",tomorrow:"",selfcare:"",gratitudes:[]};let p={};try{p=JSON.parse(row.reflection||"{}")}catch(e){}return{records:p.records||[],insight:p.insight||"",good:p.good_point||"",bad:p.improve_point||"",tomorrow:p.tomorrow_goal||"",selfcare:p.selfcare_note||"",gratitudes:p.gratitudes||[row.gratitude_1,row.gratitude_2,row.gratitude_3].filter(Boolean)}}
 function getJournal(date){return D.gratitudeHistory.find(x=>x.entry_date===date)||null}
@@ -207,7 +314,7 @@ function calendar(){const y=calendarCursor.getFullYear(),m=calendarCursor.getMon
 function journalCalendar(){const y=calendarCursor.getFullYear(),m=calendarCursor.getMonth(),first=new Date(y,m,1),last=new Date(y,m+1,0),start=first.getDay(),days=last.getDate(),set=new Set(D.gratitudeHistory.map(x=>x.entry_date)),cells=[];for(let i=0;i<start;i++)cells.push('<div></div>');for(let d=1;d<=days;d++){const ds=`${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;cells.push(`<button class="cal-day" data-journal-date="${ds}">${d}${set.has(ds)?'<i class="record-dot"></i>':""}</button>`)}openModal("기록 날짜 선택",`<div class="calendar-head"><button class="ghost" data-jcal="-1">‹</button><b>${y}년 ${m+1}월</b><button class="ghost" data-jcal="1">›</button></div><div class="week-head">${["일","월","화","수","목","금","토"].map(x=>`<span>${x}</span>`).join("")}</div><div class="small-calendar-grid">${cells.join("")}</div>`)}
 
 const pages={home,shop,appointments,customers,consultations,treatments,photos,passes,programs,products,inventory,sales,expenses,settlement,marketing,reviews,documents,yuni,goals,monthly,weekly,today:todayPlan,projects,calendar,habits,gratitude,budget,sns,assistant,settings};
-function render(page){currentPage=page;$("#title").textContent=names[page]||"YE PLATFORM";$("#area").textContent=page==="home"?"YE PLATFORM · v1.3":(["yuni","goals","monthly","weekly","today","projects","calendar","habits","gratitude","budget","sns"].includes(page)?"유니":"예에스테틱");const fn=pages[page]||home;$("#content").innerHTML=fn();$$("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));if(innerWidth<781)$("#side").classList.remove("open")}
+function render(page){currentPage=page;$("#title").textContent=names[page]||"YE PLATFORM";$("#area").textContent=page==="home"?"YE PLATFORM · v1.4":(["yuni","goals","monthly","weekly","today","projects","calendar","habits","gratitude","budget","sns"].includes(page)?"유니":"예에스테틱");const fn=pages[page]||home;$("#content").innerHTML=fn();$$("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));if(innerWidth<781)$("#side").classList.remove("open")}
 function shiftJournal(n){const d=new Date(selectedJournalDate+"T00:00:00");d.setDate(d.getDate()+n);selectedJournalDate=d.toISOString().slice(0,10);render("gratitude")}
 function selectJournal(date){selectedJournalDate=date;closeModal();render("gratitude")}
 async function saveJournal(){if(preview)return toast("실제 로그인 후 저장됩니다.");const records=Array.from({length:30},(_,i)=>$(`#record_${i+1}`)?.value.trim()).filter(Boolean),gratitudes=Array.from({length:30},(_,i)=>$(`#gratitude_${i+1}`)?.value.trim()).filter(Boolean),payload={user_id:user.id,entry_date:selectedJournalDate,gratitude_1:gratitudes[0]||null,gratitude_2:gratitudes[1]||null,gratitude_3:gratitudes[2]||null,reflection:JSON.stringify({records,insight:$("#insight")?.value||"",good_point:$("#good")?.value||"",improve_point:$("#bad")?.value||"",tomorrow_goal:$("#tomorrow")?.value||"",selfcare_note:$("#selfcare")?.value||"",gratitudes})},existing=getJournal(selectedJournalDate);const res=existing?await client.from("yuni_gratitude").update(payload).eq("id",existing.id).eq("user_id",user.id):await client.from("yuni_gratitude").insert(payload);if(res.error)return toast("저장 오류: "+res.error.message);toast("저장되었습니다.");await loadAll();render("gratitude")}
@@ -217,48 +324,77 @@ function openSimpleForm(type){
  const co=`<option value="">고객 선택</option>${D.customers.map(c=>`<option value="${c.id}">${c.name}</option>`).join("")}`;
  const po=`<option value="">프로그램 선택</option>${D.programs.map(p=>`<option value="${p.id}">${p.name}</option>`).join("")}`;
  const prodo=`<option value="">제품 선택</option>${D.products.map(p=>`<option value="${p.id}">${p.name}</option>`).join("")}`;
+ const btn=t=>`<button class="primary full" data-save="${t}" style="margin-top:15px">저장</button>`;
  const forms={
-  customer:["고객 등록",`<label class="label">고객명<input id="fName" class="control"></label><label class="label">연락처<input id="fPhone" class="control"></label><button class="primary full" data-save="customer" style="margin-top:15px">저장</button>`],
-  appointment:["예약 등록",`<label class="label">날짜<input id="fDate" type="date" class="control" value="${todayISO()}"></label><label class="label">시간<input id="fTime" type="time" class="control"></label><label class="label">고객<select id="fCustomer" class="control">${co}</select></label><label class="label">프로그램<select id="fProgram" class="control">${po}</select></label><button class="primary full" data-save="appointment" style="margin-top:15px">저장</button>`],
-  consultation:["피부상담 등록",`<label class="label">고객<select id="fCustomer" class="control">${co}</select></label><label class="label">피부타입<input id="fSkinType" class="control" placeholder="예: 민감성"></label><label class="label">핵심고민<input id="fConcern" class="control" placeholder="예: 모공·장벽"></label><label class="label">상담메모<textarea id="fNote" class="control" rows="5"></textarea></label><button class="primary full" data-save="consultation" style="margin-top:15px">저장</button>`],
-  treatment:["관리기록 등록",`<label class="label">고객<select id="fCustomer" class="control">${co}</select></label><label class="label">프로그램<select id="fProgram" class="control">${po}</select></label><label class="label">피부반응<textarea id="fSkinResponse" class="control" rows="3"></textarea></label><label class="label">홈케어<textarea id="fHomecare" class="control" rows="3"></textarea></label><label class="label">다음 권장일<input id="fNext" type="date" class="control"></label><button class="primary full" data-save="treatment" style="margin-top:15px">저장</button>`],
-  photo:["전후사진 등록",`<label class="label">고객<select id="fCustomer" class="control">${co}</select></label><label class="label">구분<select id="fPhotoType" class="control"><option>BEFORE</option><option>AFTER</option><option>정면</option><option>좌측</option><option>우측</option><option>근접</option></select></label><div class="upload-zone"><input id="fPhoto" type="file" accept="image/*"><div id="photoPreview" class="photo-preview"></div></div><p class="small">사진 영구저장은 Supabase Storage 연결 단계에서 추가됩니다.</p>`],
-  pass:["이용권 등록",`<label class="label">고객<select id="fCustomer" class="control">${co}</select></label><label class="label">이용권명<input id="fPassName" class="control"></label><label class="label">총 횟수<input id="fTotalSessions" type="number" class="control"></label><label class="label">종료일<input id="fEndDate" type="date" class="control"></label><button class="primary full" data-save="pass" style="margin-top:15px">저장</button>`],
-  program:["프로그램 등록",`<label class="label">프로그램명<input id="fProgramName" class="control"></label><label class="label">시간(분)<input id="fDuration" type="number" class="control"></label><label class="label">가격<input id="fPrice" type="number" class="control"></label><button class="primary full" data-save="program" style="margin-top:15px">저장</button>`],
-  product:["제품 등록",`<label class="label">제품명<input id="fProductName" class="control"></label><label class="label">브랜드<input id="fBrand" class="control" value="에스테인"></label><label class="label">가격<input id="fPrice" type="number" class="control"></label><label class="label">현재재고<input id="fStock" type="number" class="control"></label><label class="label">안전재고<input id="fSafety" type="number" class="control"></label><button class="primary full" data-save="product" style="margin-top:15px">저장</button>`],
-  stock:["재고 조정",`<label class="label">제품<select id="fProduct" class="control">${prodo}</select></label><label class="label">새 현재재고<input id="fStock" type="number" class="control"></label><button class="primary full" data-save="stock" style="margin-top:15px">반영</button>`],
-  sale:["매출 등록",`<label class="label">날짜<input id="fDate" type="date" class="control" value="${todayISO()}"></label><label class="label">고객<select id="fCustomer" class="control">${co}</select></label><label class="label">구분<select id="fSaleType" class="control"><option>관리</option><option>제품</option><option>이용권</option></select></label><label class="label">금액<input id="fAmount" type="number" class="control"></label><button class="primary full" data-save="sale" style="margin-top:15px">저장</button>`],
-  expense:["지출 등록",`<label class="label">금액<input id="fAmount" type="number" class="control"></label><label class="label">내용<input id="fDesc" class="control"></label><button class="primary full" data-save="expense" style="margin-top:15px">저장</button>`],
-  task:["오늘 할 일",`<label class="label">할 일<input id="fTask" class="control"></label><button class="primary full" data-save="task" style="margin-top:15px">저장</button>`],
-  goal:["목표 등록",`<label class="label">목표<input id="fTitle" class="control"></label><label class="label">구분<select id="fGoalType" class="control"><option value="annual">연간</option><option value="monthly">월간</option><option value="weekly">주간</option></select></label><label class="label">기한<input id="fDue" type="date" class="control"></label><button class="primary full" data-save="goal" style="margin-top:15px">저장</button>`],
-  project:["프로젝트 등록",`<label class="label">프로젝트명<input id="fTitle" class="control"></label><label class="label">설명<textarea id="fDesc" class="control" rows="4"></textarea></label><button class="primary full" data-save="project" style="margin-top:15px">저장</button>`],
-  habit:["습관 등록",`<label class="label">습관명<input id="fTitle" class="control"></label><label class="label">주기<select id="fFrequency" class="control"><option value="daily">매일</option><option value="weekly">매주</option></select></label><button class="primary full" data-save="habit" style="margin-top:15px">저장</button>`],
-  budget:["가계부 등록",`<label class="label">구분<select id="fEntryType" class="control"><option>지출</option><option>수입</option></select></label><label class="label">내용<input id="fDesc" class="control"></label><label class="label">금액<input id="fAmount" type="number" class="control"></label><button class="primary full" data-save="budget" style="margin-top:15px">저장</button>`]
+ consultation:["피부상담 등록",`<label class="label">고객<select id="fCustomer" class="control">${co}</select></label><label class="label">피부타입<input id="fSkinType" class="control"></label><label class="label">핵심고민<input id="fConcern" class="control"></label><label class="label">생활습관<textarea id="fLifestyle" class="control" rows="3"></textarea></label><label class="label">추천관리<input id="fRecommendation" class="control"></label><label class="label">상담메모<textarea id="fNote" class="control" rows="4"></textarea></label>${btn("consultation")}`],
+ treatment:["관리기록 등록",`<label class="label">고객<select id="fCustomer" class="control">${co}</select></label><label class="label">프로그램<select id="fProgram" class="control">${po}</select></label><label class="label">피부반응<textarea id="fSkinResponse" class="control" rows="3"></textarea></label><label class="label">사용제품<textarea id="fProductsUsed" class="control" rows="2"></textarea></label><label class="label">홈케어 안내<textarea id="fHomecare" class="control" rows="3"></textarea></label><label class="label">다음 권장일<input id="fNext" type="date" class="control"></label>${btn("treatment")}`],
+ photo:["전후사진 등록",`<label class="label">고객<select id="fCustomer" class="control">${co}</select></label><label class="label">구분<select id="fPhotoType" class="control"><option>BEFORE</option><option>AFTER</option><option>정면</option><option>좌측</option><option>우측</option><option>근접</option></select></label><label class="label">메모<input id="fMemo" class="control"></label><div class="upload-zone"><input id="fAssetFile" type="file" accept="image/*"></div>${btn("photo")}`],
+ stock:["재고 입출고",`<label class="label">제품<select id="fProduct" class="control">${prodo}</select></label><label class="label">구분<select id="fMoveType" class="control"><option value="입고">입고</option><option value="출고">출고</option><option value="조정">조정</option></select></label><label class="label">수량<input id="fQty" type="number" class="control"></label><label class="label">메모<input id="fMemo" class="control"></label>${btn("stock")}`],
+ sale:["매출 등록",`<label class="label">날짜<input id="fDate" type="date" class="control" value="${todayISO()}"></label><label class="label">고객<select id="fCustomer" class="control">${co}</select></label><label class="label">구분<select id="fSaleType" class="control"><option>관리</option><option>제품</option><option>이용권</option></select></label><label class="label">금액<input id="fAmount" type="number" class="control"></label><label class="label">결제상태<select id="fPaymentStatus" class="control"><option>결제완료</option><option>미결제</option></select></label>${btn("sale")}`],
+ expense:["지출 등록",`<label class="label">날짜<input id="fDate" type="date" class="control" value="${todayISO()}"></label><label class="label">분류<input id="fCategory" class="control" value="기타"></label><label class="label">내용<input id="fDesc" class="control"></label><label class="label">금액<input id="fAmount" type="number" class="control"></label>${btn("expense")}`],
+ marketing:["마케팅 등록",`<label class="label">날짜<input id="fDate" type="date" class="control" value="${todayISO()}"></label><label class="label">채널<select id="fChannel" class="control"><option>인스타그램</option><option>스레드</option><option>네이버 블로그</option><option>네이버 플레이스</option><option>당근</option><option>카카오</option></select></label><label class="label">제목<input id="fTitle" class="control"></label><label class="label">상태<select id="fStatus" class="control"><option>아이디어</option><option>제작중</option><option>게시예정</option><option>게시완료</option></select></label><label class="label">메모<textarea id="fMemo" class="control" rows="4"></textarea></label>${btn("marketing")}`],
+ review:["리뷰 등록",`<label class="label">고객<select id="fCustomer" class="control">${co}</select></label><label class="label">채널<input id="fChannel" class="control" value="네이버"></label><label class="label">평점<input id="fRating" type="number" min="1" max="5" class="control" value="5"></label><label class="label">리뷰<textarea id="fContent" class="control" rows="5"></textarea></label><label class="label">답변상태<select id="fStatus" class="control"><option>답변대기</option><option>답변완료</option></select></label>${btn("review")}`],
+ document:["문서 등록",`<label class="label">구분<input id="fCategory" class="control" value="운영문서"></label><label class="label">문서명<input id="fTitle" class="control"></label><label class="label">메모<textarea id="fMemo" class="control" rows="4"></textarea></label><label class="label">파일(선택)<input id="fAssetFile" type="file" class="control"></label>${btn("document")}`],
+ monthly:["월간계획 등록",`<label class="label">월<input id="fMonth" type="month" class="control" value="${todayISO().slice(0,7)}"></label><label class="label">제목<input id="fTitle" class="control"></label><label class="label">예에스테틱 계획<textarea id="fBusiness" class="control" rows="4"></textarea></label><label class="label">유니 계획<textarea id="fPersonal" class="control" rows="4"></textarea></label><label class="label">상태<select id="fStatus" class="control"><option>진행중</option><option>완료</option></select></label>${btn("monthly")}`],
+ weekly:["주간계획 등록",`<label class="label">주 시작일<input id="fWeekStart" type="date" class="control" value="${todayISO()}"></label><label class="label">제목<input id="fTitle" class="control"></label><label class="label">이번 주 TOP3<textarea id="fTop3" class="control" rows="3"></textarea></label><label class="label">업무 계획<textarea id="fBusiness" class="control" rows="4"></textarea></label><label class="label">개인 계획<textarea id="fPersonal" class="control" rows="4"></textarea></label>${btn("weekly")}`],
+ sns:["SNS 정보 등록",`<label class="label">채널<select id="fChannel" class="control"><option>인스타</option><option>스레드</option><option>블로그</option><option>유튜브</option></select></label><label class="label">제목<input id="fTitle" class="control"></label><label class="label">상태<select id="fStatus" class="control"><option>아이디어</option><option>초안</option><option>완성</option><option>게시</option></select></label><label class="label">내용<textarea id="fContent" class="control" rows="6"></textarea></label><label class="label">참고링크<input id="fUrl" class="control"></label>${btn("sns")}`],
+ budget:["가계부 등록",`<label class="label">날짜<input id="fDate" type="date" class="control" value="${todayISO()}"></label><label class="label">구분<select id="fEntryType" class="control"><option>지출</option><option>수입</option></select></label><label class="label">분류<input id="fCategory" class="control" value="기타"></label><label class="label">내용<input id="fDesc" class="control"></label><label class="label">금액<input id="fAmount" type="number" class="control"></label>${btn("budget")}`]
  };
- if(forms[type])openModal(forms[type][0],forms[type][1]); else toast("이 등록 화면은 다음 데이터 연결 단계에서 추가합니다.");
+ if(forms[type])return openModal(forms[type][0],forms[type][1]);
+ // 기존 등록폼은 그대로 사용
+ return openLegacyForm(type);
+}
+function openLegacyForm(type){
+ const co=`<option value="">고객 선택</option>${D.customers.map(c=>`<option value="${c.id}">${c.name}</option>`).join("")}`;
+ const po=`<option value="">프로그램 선택</option>${D.programs.map(p=>`<option value="${p.id}">${p.name}</option>`).join("")}`;
+ const forms={
+ customer:["고객 등록",`<label class="label">고객명<input id="fName" class="control"></label><label class="label">연락처<input id="fPhone" class="control"></label><button class="primary full" data-save="customer" style="margin-top:15px">저장</button>`],
+ appointment:["예약 등록",`<label class="label">날짜<input id="fDate" type="date" class="control" value="${todayISO()}"></label><label class="label">시간<input id="fTime" type="time" class="control"></label><label class="label">고객<select id="fCustomer" class="control">${co}</select></label><label class="label">프로그램<select id="fProgram" class="control">${po}</select></label><button class="primary full" data-save="appointment" style="margin-top:15px">저장</button>`],
+ pass:["이용권 등록",`<label class="label">고객<select id="fCustomer" class="control">${co}</select></label><label class="label">이용권명<input id="fPassName" class="control"></label><label class="label">총횟수<input id="fTotalSessions" type="number" class="control"></label><label class="label">종료일<input id="fEndDate" type="date" class="control"></label><button class="primary full" data-save="pass" style="margin-top:15px">저장</button>`],
+ program:["프로그램 등록",`<label class="label">프로그램명<input id="fProgramName" class="control"></label><label class="label">시간(분)<input id="fDuration" type="number" class="control"></label><label class="label">가격<input id="fPrice" type="number" class="control"></label><button class="primary full" data-save="program" style="margin-top:15px">저장</button>`],
+ product:["제품 등록",`<label class="label">제품명<input id="fProductName" class="control"></label><label class="label">브랜드<input id="fBrand" class="control" value="에스테인"></label><label class="label">가격<input id="fPrice" type="number" class="control"></label><label class="label">현재재고<input id="fStock" type="number" class="control"></label><label class="label">안전재고<input id="fSafety" type="number" class="control"></label><button class="primary full" data-save="product" style="margin-top:15px">저장</button>`],
+ task:["오늘 할 일",`<label class="label">할 일<input id="fTask" class="control"></label><button class="primary full" data-save="task" style="margin-top:15px">저장</button>`],
+ goal:["목표 등록",`<label class="label">목표<input id="fTitle" class="control"></label><label class="label">구분<select id="fGoalType" class="control"><option value="annual">연간</option><option value="monthly">월간</option><option value="weekly">주간</option></select></label><label class="label">기한<input id="fDue" type="date" class="control"></label><button class="primary full" data-save="goal" style="margin-top:15px">저장</button>`],
+ project:["프로젝트 등록",`<label class="label">프로젝트명<input id="fTitle" class="control"></label><label class="label">설명<textarea id="fDesc" class="control" rows="4"></textarea></label><button class="primary full" data-save="project" style="margin-top:15px">저장</button>`],
+ habit:["습관 등록",`<label class="label">습관명<input id="fTitle" class="control"></label><label class="label">주기<select id="fFrequency" class="control"><option value="daily">매일</option><option value="weekly">매주</option></select></label><button class="primary full" data-save="habit" style="margin-top:15px">저장</button>`]
+ };
+ if(forms[type])openModal(forms[type][0],forms[type][1]); else toast("등록 화면을 찾지 못했습니다.");
 }
 async function saveSimple(type){
+ try{
+  if(type==="consultation"){const {error}=await client.from("ye_consultations").insert({user_id:user.id,consultation_date:todayISO(),customer_id:$("#fCustomer").value||null,skin_type:$("#fSkinType").value,concerns:$("#fConcern").value,lifestyle:$("#fLifestyle").value,recommendation:$("#fRecommendation").value,memo:$("#fNote").value});if(error)throw error}
+  else if(type==="treatment"){const pid=$("#fProgram").value||null;const {error}=await client.from("ye_treatments").insert({user_id:user.id,treatment_date:todayISO(),customer_id:$("#fCustomer").value||null,program_id:pid,program_name:pname(pid),skin_response:$("#fSkinResponse").value,products_used:$("#fProductsUsed").value,homecare_guide:$("#fHomecare").value,next_date:$("#fNext").value||null});if(error)throw error}
+  else if(type==="photo"){const f=$("#fAssetFile").files[0];if(!f)return toast("사진을 선택해주세요.");const path=await uploadPrivate(f,"photos");const {error}=await client.from("ye_photos").insert({user_id:user.id,photo_date:todayISO(),customer_id:$("#fCustomer").value||null,photo_type:$("#fPhotoType").value,memo:$("#fMemo").value,storage_path:path,file_name:f.name});if(error)throw error}
+  else if(type==="stock"){const id=$("#fProduct").value;if(!id)return toast("제품을 선택해주세요.");const p=D.products.find(x=>x.id===id),q=Number($("#fQty").value||0),kind=$("#fMoveType").value;let next=Number(p?.current_stock||0);if(kind==="입고")next+=q;else if(kind==="출고")next-=q;else next=q;if(next<0)return toast("재고가 0보다 작아질 수 없습니다.");let r=await client.from("products").update({current_stock:next,updated_by:user.id}).eq("id",id);if(r.error)throw r.error;r=await client.from("inventory_movements").insert({user_id:user.id,movement_date:todayISO(),product_id:id,movement_type:kind,quantity:q,before_qty:Number(p?.current_stock||0),after_qty:next,memo:$("#fMemo").value});if(r.error)throw r.error}
+  else if(type==="sale"){const amount=Number($("#fAmount").value||0),status=$("#fPaymentStatus").value;const {error}=await client.from("sales").insert({sale_date:$("#fDate").value,customer_id:$("#fCustomer").value||null,sale_type:$("#fSaleType").value,gross_amount:amount,net_amount:amount,outstanding_amount:status==="결제완료"?0:amount,payment_status:status,created_by:user.id,updated_by:user.id});if(error)throw error}
+  else if(type==="expense"){const {error}=await client.from("expenses").insert({expense_date:$("#fDate").value,category:$("#fCategory").value||"기타",description:$("#fDesc").value,amount:Number($("#fAmount").value||0),created_by:user.id,updated_by:user.id});if(error)throw error}
+  else if(type==="marketing"){const {error}=await client.from("ye_marketing_records").insert({user_id:user.id,record_date:$("#fDate").value,channel:$("#fChannel").value,title:$("#fTitle").value,status:$("#fStatus").value,memo:$("#fMemo").value});if(error)throw error}
+  else if(type==="review"){const {error}=await client.from("ye_reviews").insert({user_id:user.id,review_date:todayISO(),customer_id:$("#fCustomer").value||null,channel:$("#fChannel").value,rating:Number($("#fRating").value||0),content:$("#fContent").value,status:$("#fStatus").value});if(error)throw error}
+  else if(type==="document"){let path=null,f=$("#fAssetFile").files[0];if(f)path=await uploadPrivate(f,"documents");const {error}=await client.from("ye_documents").insert({user_id:user.id,category:$("#fCategory").value,title:$("#fTitle").value,memo:$("#fMemo").value,storage_path:path,file_name:f?.name||null});if(error)throw error}
+  else if(type==="monthly"){const {error}=await client.from("ye_monthly_plans").upsert({user_id:user.id,plan_month:$("#fMonth").value,title:$("#fTitle").value,business_plan:$("#fBusiness").value,personal_plan:$("#fPersonal").value,status:$("#fStatus").value},{onConflict:"user_id,plan_month"});if(error)throw error}
+  else if(type==="weekly"){const {error}=await client.from("ye_weekly_plans").upsert({user_id:user.id,week_start:$("#fWeekStart").value,title:$("#fTitle").value,top3:$("#fTop3").value,business_plan:$("#fBusiness").value,personal_plan:$("#fPersonal").value,status:"진행중"},{onConflict:"user_id,week_start"});if(error)throw error}
+  else if(type==="sns"){const {error}=await client.from("ye_sns_notes").insert({user_id:user.id,channel:$("#fChannel").value,title:$("#fTitle").value,status:$("#fStatus").value,content:$("#fContent").value,reference_url:$("#fUrl").value});if(error)throw error}
+  else if(type==="budget"){const {error}=await client.from("yuni_budget_entries").insert({user_id:user.id,entry_date:$("#fDate").value,entry_type:$("#fEntryType").value,category:$("#fCategory").value||"기타",description:$("#fDesc").value,amount:Number($("#fAmount").value||0)});if(error)throw error}
+  else return await saveLegacy(type);
+  closeModal();toast("저장되었습니다.");await loadAll();render(currentPage);
+ }catch(e){console.error(e);toast("저장 오류: "+(e.message||e))}
+}
+async function saveLegacy(type){
  let tableName,payload,target=currentPage;
  if(type==="customer"){tableName="customers";payload={name:$("#fName").value,phone:$("#fPhone").value,created_by:user.id,updated_by:user.id}}
  if(type==="appointment"){tableName="appointments";payload={appointment_date:$("#fDate").value,start_time:$("#fTime").value,customer_id:$("#fCustomer").value||null,program_id:$("#fProgram").value||null,status:"예약확정",created_by:user.id,updated_by:user.id}}
- if(type==="consultation"){tableName="consultations";payload={customer_id:$("#fCustomer").value||null,consultation_date:todayISO(),skin_type:$("#fSkinType").value,main_concerns:$("#fConcern").value,consultation_note:$("#fNote").value,created_by:user.id,updated_by:user.id}}
- if(type==="treatment"){tableName="treatment_records";payload={customer_id:$("#fCustomer").value||null,program_id:$("#fProgram").value||null,treatment_date:todayISO(),skin_response:$("#fSkinResponse").value,homecare_guide:$("#fHomecare").value,next_recommended_date:$("#fNext").value||null,created_by:user.id,updated_by:user.id}}
  if(type==="pass"){const total=Number($("#fTotalSessions").value||0);tableName="customer_passes";payload={customer_id:$("#fCustomer").value||null,pass_name:$("#fPassName").value,total_sessions:total,used_sessions:0,remaining_sessions:total,end_date:$("#fEndDate").value||null,status:"사용중",created_by:user.id,updated_by:user.id}}
  if(type==="program"){tableName="programs";payload={name:$("#fProgramName").value,duration_minutes:Number($("#fDuration").value||0),regular_price:Number($("#fPrice").value||0),is_active:true,is_deleted:false,created_by:user.id,updated_by:user.id}}
  if(type==="product"){tableName="products";payload={name:$("#fProductName").value,brand:$("#fBrand").value,sale_price:Number($("#fPrice").value||0),current_stock:Number($("#fStock").value||0),safety_stock:Number($("#fSafety").value||0),is_active:true,is_deleted:false,created_by:user.id,updated_by:user.id}}
- if(type==="stock"){const id=$("#fProduct").value;if(!id)return toast("제품을 선택해주세요.");const {error}=await client.from("products").update({current_stock:Number($("#fStock").value||0),updated_by:user.id}).eq("id",id);if(error)return toast("저장 오류: "+error.message);closeModal();toast("재고가 반영되었습니다.");await loadAll();render("inventory");return}
- if(type==="sale"){const amount=Number($("#fAmount").value||0);tableName="sales";payload={sale_date:$("#fDate").value,customer_id:$("#fCustomer").value||null,sale_type:$("#fSaleType").value,gross_amount:amount,net_amount:amount,outstanding_amount:0,payment_status:"결제완료",created_by:user.id,updated_by:user.id};target="sales"}
- if(type==="expense"){tableName="expenses";payload={expense_date:todayISO(),category:"기타",description:$("#fDesc").value,amount:Number($("#fAmount").value||0),created_by:user.id,updated_by:user.id}}
  if(type==="task"){tableName="yuni_tasks";payload={user_id:user.id,title:$("#fTask").value,task_date:todayISO(),priority:"보통",status:"미완료"}}
  if(type==="goal"){tableName="yuni_goals";payload={user_id:user.id,title:$("#fTitle").value,goal_type:$("#fGoalType").value,due_date:$("#fDue").value||null,status:"진행중"}}
  if(type==="project"){tableName="yuni_projects";payload={user_id:user.id,title:$("#fTitle").value,description:$("#fDesc").value,status:"진행중",progress:0}}
  if(type==="habit"){tableName="yuni_habits";payload={user_id:user.id,title:$("#fTitle").value,frequency:$("#fFrequency").value,is_active:true}}
- if(type==="budget"){tableName="yuni_budget_entries";payload={user_id:user.id,entry_date:todayISO(),entry_type:$("#fEntryType").value,description:$("#fDesc").value,amount:Number($("#fAmount").value||0)}}
- if(!tableName)return toast("아직 저장 연결이 없는 항목입니다.");
- const {error}=await client.from(tableName).insert(payload);
- if(error)return toast("저장 오류: "+error.message);
+ if(!tableName)return toast("저장 연결이 없는 항목입니다.");
+ const {error}=await client.from(tableName).insert(payload);if(error)throw error;
  closeModal();toast("저장되었습니다.");await loadAll();render(target);
 }
+
 async function enter(){ $("#login").classList.add("hidden");$("#app").classList.remove("hidden");$("#profileEmail").textContent=user?.email||"미리보기";render("home");try{await loadAll()}catch(e){console.warn(e)}render(currentPage)}
 async function init(){
  $("#loginBtn").onclick=async()=>{const email=$("#email").value.trim(),password=$("#password").value;if(!email||!password)return $("#loginMsg").textContent="이메일과 비밀번호를 입력해주세요.";try{$("#loginBtn").textContent="로그인 중...";const {data,error}=await client.auth.signInWithPassword({email,password});if(error)return $("#loginMsg").textContent=error.message;user=data.user;preview=false;await enter()}finally{$("#loginBtn").textContent="로그인"}};
@@ -277,7 +413,15 @@ async function init(){
  const day=e.target.closest("[data-day]");if(day){selectedJournalDate=day.dataset.day;render("gratitude");return}
  const save=e.target.closest("[data-save]");if(save){await saveSimple(save.dataset.save);return}
  const action=e.target.closest("[data-action]");if(action){if(action.dataset.action==="journal-calendar"){journalCalendar();return}openSimpleForm(action.dataset.action);return}
- const ai=e.target.closest("[data-ai]");if(ai){toast("AI 연결은 다음 단계에서 안전하게 연결합니다.");return}
+ const ex=e.target.closest("[data-export]");if(ex){
+ const type=ex.dataset.export;
+ if(type==="sales")exportCSV("매출.csv",["날짜","고객","구분","금액"],D.sales6.map(x=>[x.sale_date,cname(x.customer_id),x.sale_type,x.net_amount]));
+ if(type==="expenses")exportCSV("지출.csv",["날짜","분류","내용","금액"],D.expenses6.map(x=>[x.expense_date,x.category,x.description,x.amount]));
+ if(type==="inventory")exportCSV("재고.csv",["제품","현재재고","안전재고","판매가"],D.products.map(x=>[x.name,x.current_stock,x.safety_stock,x.sale_price]));
+ if(type==="budget")exportCSV("유니가계부.csv",["날짜","구분","분류","내용","금액"],D.budget.map(x=>[x.entry_date,x.entry_type,x.category,x.description,x.amount]));
+ return
+}
+const ai=e.target.closest("[data-ai]");if(ai){toast("AI 연결은 다음 단계에서 안전하게 연결합니다.");return}
 });
 document.addEventListener("change",e=>{
  if(e.target.id==="selfcarePhotos")showPhotos(e.target);
