@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#392821">
-<title>YE PLATFORM v1.0.1</title>
+<title>YE PLATFORM v1.1</title>
 <style>
 *{box-sizing:border-box} :root{
  --brown:#392821;--brown2:#271b17;--gold:#d6ad72;--cream:#f6f0e9;--paper:#fff;
@@ -110,6 +110,17 @@ th,td{padding:11px 12px;font-size:12px}
 .report-box b{display:block;font-family:var(--serif);font-size:22px;margin-top:7px}
 @media(max-width:900px){.journal-layout{grid-template-columns:1fr}.journal-section:nth-child(1),.journal-section:nth-child(6){grid-column:auto}.journal-lines{grid-template-columns:1fr}.reflection-grid,.sales-report-grid{grid-template-columns:1fr}.photo-preview{grid-template-columns:repeat(2,1fr)}}
 
+
+/* v1.1 날짜별 기록 + 통합 캘린더 */
+.journal-datebar{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;margin-bottom:14px}
+.date-main{border:1px solid var(--line);background:#fff;border-radius:14px;padding:13px 15px;font-weight:900;color:var(--brown)}
+.calendar-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.week-head{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:5px}.week-head span{text-align:center;font-size:11px;color:var(--muted);font-weight:800}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.cal-day{min-height:58px;border:1px solid var(--line);border-radius:10px;background:#fff;position:relative}.cal-day.today{border-color:var(--gold)}.cal-day.selected{background:#f7eee5}.muted-cell{border-color:transparent;background:transparent}.record-dot{position:absolute;width:7px;height:7px;border-radius:50%;background:#d19a5b;bottom:7px;left:50%;transform:translateX(-50%)}
+.month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.month-cell{min-height:118px;text-align:left;vertical-align:top;padding:9px;border:1px solid var(--line);border-radius:12px;background:#fff}.month-cell.today{border:2px solid var(--gold)}.empty-cell{background:transparent;border-color:transparent}.month-events{display:grid;gap:4px;margin-top:8px}.ev{display:block;padding:4px 5px;border-radius:6px;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ev.shop{background:#f7e5e6}.ev.journal{background:#f5ebd9}
+.journal-row-btn{width:100%;border:0;text-align:left}
+@media(max-width:780px){.journal-datebar{grid-template-columns:1fr 1fr}.date-main{grid-column:1/-1;grid-row:1}.month-cell{min-height:85px;padding:6px}.ev{font-size:8px}}
+
 </style>
 </head>
 <body>
@@ -162,8 +173,8 @@ th,td{padding:11px 12px;font-size:12px}
 <script>
 const CONFIG={url:"https://lvfaomlpcrrnffncvffy.supabase.co",key:"sb_publishable_4ZGSNTPI3zW-j-SYp4pHrA_quzvTIPG"};
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-let client=null,user=null,preview=false,currentPage='home';
-let D={customers:[],appointments:[],programs:[],products:[],sales:[],expenses:[],sales6:[],expenses6:[],passes:[],tasks:[],goals:[],projects:[],habits:[],gratitude:[],budget:[],consultations:[],treatments:[],contacts:[]};
+let client=null,user=null,preview=false,currentPage='home',selectedJournalDate=todayISO(),calendarCursor=new Date();
+let D={customers:[],appointments:[],programs:[],products:[],sales:[],expenses:[],sales6:[],expenses6:[],passes:[],tasks:[],goals:[],projects:[],habits:[],gratitude:[],gratitudeHistory:[],budget:[],consultations:[],treatments:[],contacts:[]};
 
 const demo={
  customers:[{name:"김○○",phone:"010-****-1234",grade:"VIP",last:"8월 6일"},{name:"이○○",phone:"010-****-7788",grade:"재방문",last:"8월 7일"},{name:"박○○",phone:"010-****-5901",grade:"신규",last:"오늘"}],
@@ -239,7 +250,8 @@ async function loadAll(){
  D.goals=await safe("yuni_goals",q=>q.eq("user_id",user.id).order("created_at",{ascending:false}));
  D.projects=await safe("yuni_projects",q=>q.eq("user_id",user.id).order("created_at",{ascending:false}));
  D.habits=await safe("yuni_habits",q=>q.eq("user_id",user.id).eq("is_active",true));
- D.gratitude=await safe("yuni_gratitude",q=>q.eq("user_id",user.id).eq("entry_date",t));
+ D.gratitudeHistory=await safe("yuni_gratitude",q=>q.eq("user_id",user.id).gte("entry_date",monthsAgoISO(12)).order("entry_date",{ascending:false}));
+ D.gratitude=D.gratitudeHistory.filter(x=>x.entry_date===selectedJournalDate);
  D.budget=await safe("yuni_budget_entries",q=>q.eq("user_id",user.id).eq("entry_date",t));
 }
 
@@ -337,78 +349,117 @@ function todayPlan(){const rows=(preview?demo.tasks.map((x,i)=>({title:x,priorit
 function projects(){const rows=(preview?demo.projects.map((x,i)=>({title:x,progress:[68,45,30][i],status:"진행중"})):D.projects).map(x=>[x.title,`${x.progress||0}%`,x.due_date||"",badge(x.status||"진행중","green")]);return `${pageHead("프로젝트","장기 업무를 프로젝트 단위로 관리합니다.",`<button class="primary" onclick="openForm('project')">＋ 프로젝트</button>`)}${table(["프로젝트","진행률","마감일","상태"],rows)}`}
 function monthly(){return simplePage("월간계획","이번 달 목표와 주요 일정을 한 화면에서 정리합니다.",[["이번 달 목표","가장 중요한 결과 3가지"],["예에스테틱","매출·고객·마케팅"],["유니","개인 목표·생활 계획"],["콘텐츠","SNS 게시계획"],["재무","사업·개인 자금 점검"],["월말 회고","잘한 점과 다음 달 개선"]])}
 function weekly(){return simplePage("주간계획","이번 주 해야 할 일을 목표와 연결합니다.",[["이번 주 TOP 3","가장 중요한 업무"],["예약·고객","샵 운영 일정"],["콘텐츠","SNS 제작·게시"],["개인 일정","가족·공부·약속"],["습관","이번 주 반복 목표"],["주간 회고","완료·이월·개선"]])}
-function calendar(){return simplePage("캘린더","예에스테틱과 유니 일정을 한 달력에서 확인합니다.",[["예에스테틱 예약","샵 예약 일정"],["유니 일정","개인 일정"],["프로젝트 마감","업무 기한"],["콘텐츠 게시","SNS 예정일"],["결제·납부","고정 지출"],["중요 기념일","생일·약속"]])}
-function habits(){const rows=(preview?[{title:"물 마시기",frequency:"daily"},{title:"영어 10분",frequency:"daily"}]:D.habits).map(x=>[x.title,x.frequency||"daily",badge("진행중","green")]);return `${pageHead("습관관리","매일 반복할 습관을 체크합니다.")}${table(["습관","주기","상태"],rows)}`}
-function gratitude(){
- const salesToday = preview ? 450000 : D.sales.filter(x=>x.sale_type==="관리").reduce((s,x)=>s+Number(x.net_amount||0),0);
- const productToday = preview ? 170000 : D.sales.filter(x=>x.sale_type==="제품").reduce((s,x)=>s+Number(x.net_amount||0),0);
- const month=todayISO().slice(0,7);
- const monthTotal = preview ? 8420000 : D.sales6.filter(x=>monthKey(x.sale_date)===month).reduce((s,x)=>s+Number(x.net_amount||0),0);
-
- const lineInputs=(prefix,count,placeholder)=>`<div class="journal-lines">${Array.from({length:count},(_,i)=>`
-   <div class="journal-line">
-    <span>${i+1}</span>
-    <input id="${prefix}_${i+1}" class="control compact-input" placeholder="${placeholder} ${i+1}">
-   </div>`).join("")}</div>`;
-
- return `${pageHead("오늘의 기록 · 감사일기","하루의 기록부터 깨달음, 자기관리, 매출보고, 감사까지 한 화면에 남깁니다.",`<button class="primary" onclick="saveDailyJournal()">오늘 기록 저장</button>`)}
- <div class="journal-layout">
-
-  <section class="panel journal-section">
-   <div class="ops-kicker">A. TODAY RECORD</div>
-   <div class="section-head"><h3>A. 오늘의 기록 30개</h3><span class="badge blue">최대 30개</span></div>
-   <p class="muted">오늘 있었던 일, 생각난 것, 기억하고 싶은 일을 한 줄씩 자유롭게 적어보세요.</p>
-   ${lineInputs("record",30,"오늘의 기록")}
-  </section>
-
-  <section class="panel journal-section">
-   <div class="ops-kicker">B. REFLECTION</div>
-   <h3>B. 오늘의 깨달음</h3>
-   <label class="form-label">오늘의 깨달음<textarea id="insight" class="control" rows="5" placeholder="오늘 새롭게 알게 된 것, 느낀 점을 적어보세요."></textarea></label>
-   <div class="reflection-grid">
-    <label class="form-label">1. 잘한 점<textarea id="good_point" class="control" rows="5" placeholder="오늘 내가 잘한 점"></textarea></label>
-    <label class="form-label">2. 부족한 점<textarea id="improve_point" class="control" rows="5" placeholder="오늘 아쉬웠던 점, 보완할 점"></textarea></label>
-   </div>
-  </section>
-
-  <section class="panel journal-section">
-   <div class="ops-kicker">C. TOMORROW</div>
-   <h3>C. 내일의 목표</h3>
-   <textarea id="tomorrow_goal" class="control" rows="8" placeholder="내일 가장 중요한 목표와 꼭 해야 할 일을 적어보세요."></textarea>
-  </section>
-
-  <section class="panel journal-section">
-   <div class="ops-kicker">D. SELF CARE</div>
-   <h3>D. 오늘의 자기관리</h3>
-   <textarea id="selfcare_note" class="control" rows="5" placeholder="팩, 운동, 식단, 휴식, 피부관리 등 오늘 나를 위해 한 일을 기록해보세요."></textarea>
-   <div class="upload-zone">
-    <b>📷 팩 · 운동 사진 첨부</b>
-    <p class="muted">오늘의 자기관리 사진을 여러 장 선택할 수 있습니다.</p>
-    <input id="selfcare_photos" type="file" accept="image/*" multiple>
-    <div id="selfcare_preview" class="photo-preview"></div>
-   </div>
-  </section>
-
-  <section class="panel journal-section">
-   <div class="ops-kicker">E. DAILY SALES</div>
-   <h3>E. 오늘의 매출보고</h3>
-   <div class="sales-report-grid">
-    <div class="report-box"><span>관리매출</span><b>${won(salesToday)}</b></div>
-    <div class="report-box"><span>제품매출</span><b>${won(productToday)}</b></div>
-    <div class="report-box"><span>이달의 총매출</span><b>${won(monthTotal)}</b></div>
-   </div>
-   <p class="muted">예에스테틱 매출관리 데이터를 기준으로 자동 집계됩니다.</p>
-  </section>
-
-  <section class="panel journal-section">
-   <div class="ops-kicker">F. GRATITUDE</div>
-   <div class="section-head"><h3>F. 감사일기 30개</h3><span class="badge green">30개</span></div>
-   <p class="muted">작은 것이라도 감사한 일을 한 줄씩 적어보세요.</p>
-   ${lineInputs("gratitude",30,"감사한 일")}
-  </section>
- </div>`;
+function calendar(){return monthCalendarPage()}
+function getJournalRow(date){
+  return (D.gratitudeHistory||[]).find(x=>x.entry_date===date)||null;
+}
+function formatShortDate(date){
+  if(!date)return "";
+  const d=new Date(date+"T00:00:00");
+  return `${d.getMonth()+1}월 ${d.getDate()}일`;
+}
+async function selectJournalDate(date){
+  selectedJournalDate=date;
+  if(!preview&&client&&user){
+    D.gratitude=D.gratitudeHistory.filter(x=>x.entry_date===date);
+  }
+  render("gratitude");
+}
+function shiftJournalDate(delta){
+  const d=new Date(selectedJournalDate+"T00:00:00"); d.setDate(d.getDate()+delta);
+  selectJournalDate(d.toISOString().slice(0,10));
+}
+function openJournalCalendar(){
+  calendarCursor=new Date(selectedJournalDate+"T00:00:00");
+  openModal("기록 날짜 선택",journalCalendarHTML());
+}
+function journalCalendarHTML(){
+  const y=calendarCursor.getFullYear(), m=calendarCursor.getMonth();
+  const first=new Date(y,m,1), last=new Date(y,m+1,0);
+  const start=first.getDay(), days=last.getDate();
+  const marked=new Set((D.gratitudeHistory||[]).map(x=>x.entry_date));
+  const cells=[];
+  for(let i=0;i<start;i++)cells.push(`<div class="cal-day muted-cell"></div>`);
+  for(let d=1;d<=days;d++){
+    const ds=`${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const isToday=ds===todayISO(), isSel=ds===selectedJournalDate, has=marked.has(ds);
+    cells.push(`<button class="cal-day ${isToday?"today":""} ${isSel?"selected":""}" onclick="closeModal();selectJournalDate('${ds}')"><span>${d}</span>${has?'<i class="record-dot"></i>':''}</button>`);
+  }
+  return `<div class="calendar-head"><button class="ghost" onclick="calendarCursor.setMonth(calendarCursor.getMonth()-1);$('#modalBody').innerHTML=journalCalendarHTML()">‹</button><b>${y}년 ${m+1}월</b><button class="ghost" onclick="calendarCursor.setMonth(calendarCursor.getMonth()+1);$('#modalBody').innerHTML=journalCalendarHTML()">›</button></div>
+  <div class="week-head">${["일","월","화","수","목","금","토"].map(x=>`<span>${x}</span>`).join("")}</div>
+  <div class="calendar-grid">${cells.join("")}</div><p class="muted" style="margin-top:12px">✨ 점이 있는 날짜는 저장된 하루 기록이 있습니다.</p>`;
+}
+function recentJournalList(){
+  const rows=(D.gratitudeHistory||[]).slice(0,12);
+  if(preview){
+    return list([{t:"8월 14일",s:"감사 7개 · 오늘 기록 4개",b:"기록"},{t:"8월 13일",s:"감사 12개 · 오늘 기록 6개",b:"기록"},{t:"8월 12일",s:"감사 5개 · 오늘 기록 3개",b:"기록"}]);
+  }
+  if(!rows.length)return `<div class="empty"><b>아직 저장된 기록이 없습니다.</b>오늘의 기록을 시작해보세요.</div>`;
+  return `<div class="list">${rows.map(r=>{const p=parseJournalPayload(r);return `<button class="row journal-row-btn" onclick="selectJournalDate('${r.entry_date}')"><div><b>${formatShortDate(r.entry_date)}</b><br><small>오늘 기록 ${p.records.length}개 · 감사 ${p.gratitudes.length}개</small></div>${badge("보기","green")}</button>`}).join("")}</div>`;
+}
+function monthCalendarPage(){
+  const y=calendarCursor.getFullYear(), m=calendarCursor.getMonth();
+  const first=new Date(y,m,1), last=new Date(y,m+1,0), start=first.getDay(), days=last.getDate();
+  const journalSet=new Set((D.gratitudeHistory||[]).map(x=>x.entry_date));
+  const apBy={}; (D.appointments||[]).forEach(a=>{(apBy[a.appointment_date] ||= []).push(a)});
+  const cells=[];
+  for(let i=0;i<start;i++)cells.push(`<div class="month-cell empty-cell"></div>`);
+  for(let d=1;d<=days;d++){
+    const ds=`${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const aps=apBy[ds]||[];
+    const journal=journalSet.has(ds);
+    cells.push(`<button class="month-cell ${ds===todayISO()?"today":""}" onclick="openDayDetail('${ds}')"><b>${d}</b><div class="month-events">${aps.slice(0,2).map(a=>`<span class="ev shop">🩷 ${(a.start_time||"").slice(0,5)} 예약</span>`).join("")}${journal?`<span class="ev journal">✨ 하루기록</span>`:""}</div></button>`);
+  }
+  return `${pageHead("캘린더","예에스테틱 예약과 유니의 하루 기록을 월간 달력에서 함께 확인합니다.",`<button class="primary" onclick="openForm('appointment')">＋ 일정 등록</button>`)}
+  <div class="panel"><div class="calendar-head"><button class="ghost" onclick="calendarCursor.setMonth(calendarCursor.getMonth()-1);render('calendar')">‹</button><h3>${y}년 ${m+1}월</h3><button class="ghost" onclick="calendarCursor.setMonth(calendarCursor.getMonth()+1);render('calendar')">›</button></div>
+  <div class="week-head">${["일","월","화","수","목","금","토"].map(x=>`<span>${x}</span>`).join("")}</div>
+  <div class="month-grid">${cells.join("")}</div></div>`;
+}
+function openDayDetail(date){
+  const aps=(D.appointments||[]).filter(a=>a.appointment_date===date);
+  const jr=getJournalRow(date), jp=parseJournalPayload(jr);
+  openModal(`${formatShortDate(date)} 일정`,`
+    <div class="detail-grid">
+      <div class="detail-box"><span>예에스테틱 예약</span><b>${aps.length}건</b></div>
+      <div class="detail-box"><span>하루 기록</span><b>${jr?"작성됨":"미작성"}</b></div>
+      <div class="detail-box"><span>감사일기</span><b>${jp.gratitudes.length}개</b></div>
+    </div>
+    <div class="panel" style="box-shadow:none;margin-top:12px"><h3>예약</h3>${aps.length?list(aps.map(a=>({t:`${(a.start_time||"").slice(0,5)} · ${D.customers.find(c=>c.id===a.customer_id)?.name||"고객"}`,s:D.programs.find(p=>p.id===a.program_id)?.name||"",b:a.status}))):'<p class="muted">예약이 없습니다.</p>'}</div>
+    <button class="primary full" onclick="closeModal();selectJournalDate('${date}');render('gratitude')">${jr?"이날의 기록 보기":"이날 기록 작성하기"}</button>`);
 }
 
+function gratitude(){
+ const row=getJournalRow(selectedJournalDate), parsed=parseJournalPayload(row);
+ const month=selectedJournalDate.slice(0,7);
+ const salesToday=preview?450000:D.sales6.filter(x=>x.sale_date===selectedJournalDate&&x.sale_type==="관리").reduce((s,x)=>s+Number(x.net_amount||0),0);
+ const productToday=preview?170000:D.sales6.filter(x=>x.sale_date===selectedJournalDate&&x.sale_type==="제품").reduce((s,x)=>s+Number(x.net_amount||0),0);
+ const monthTotal=preview?8420000:D.sales6.filter(x=>monthKey(x.sale_date)===month).reduce((s,x)=>s+Number(x.net_amount||0),0);
+ const lineInputs=(prefix,count,placeholder,values=[])=>`<div class="journal-lines">${Array.from({length:count},(_,i)=>`
+   <div class="journal-line"><span>${i+1}</span><input id="${prefix}_${i+1}" class="control compact-input" placeholder="${placeholder} ${i+1}" value="${String(values[i]||"").replace(/"/g,"&quot;")}"></div>`).join("")}</div>`;
+ return `${pageHead("오늘의 기록 · 감사일기","작성한 모든 기록은 날짜별로 저장되고 다시 열어볼 수 있습니다.",`<button class="primary" onclick="saveDailyJournal()">이 날짜 기록 저장</button>`)}
+ <div class="journal-datebar">
+   <button class="ghost" onclick="shiftJournalDate(-1)">‹ 전날</button>
+   <button class="date-main" onclick="openJournalCalendar()">📅 ${selectedJournalDate} · ${formatShortDate(selectedJournalDate)}</button>
+   <button class="ghost" onclick="shiftJournalDate(1)">다음날 ›</button>
+ </div>
+ <div class="grid">
+  <div class="panel span2"><div class="section-head"><div><div class="ops-kicker">HISTORY</div><h3>지난 기록 모아보기</h3></div><button class="text-btn" onclick="openJournalCalendar()">달력에서 보기 →</button></div>${recentJournalList()}</div>
+  <div class="panel"><div class="ops-kicker">STATUS</div><h3>${row?"저장된 기록":"새 기록"}</h3><p class="muted">${row?"이 날짜에 작성한 내용을 불러왔습니다. 수정 후 다시 저장할 수 있습니다.":"아직 저장되지 않은 날짜입니다."}</p></div>
+  <div class="panel"><div class="ops-kicker">SALES</div><h3>이날 매출</h3>${list([{t:"관리매출",s:won(salesToday),b:"관리"},{t:"제품매출",s:won(productToday),b:"제품"},{t:"이달 총매출",s:won(monthTotal),b:"누적",k:"green"}])}</div>
+ </div>
+
+ <div class="journal-layout" style="margin-top:14px">
+  <section class="panel journal-section"><div class="ops-kicker">A. TODAY RECORD</div><div class="section-head"><h3>A. 오늘의 기록 30개</h3><span class="badge blue">30개</span></div>${lineInputs("record",30,"오늘의 기록",parsed.records)}</section>
+  <section class="panel journal-section"><div class="ops-kicker">B. REFLECTION</div><h3>B. 오늘의 깨달음</h3>
+   <label class="form-label">오늘의 깨달음<textarea id="insight" class="control" rows="5">${parsed.insight}</textarea></label>
+   <div class="reflection-grid"><label class="form-label">1. 잘한 점<textarea id="good_point" class="control" rows="5">${parsed.good_point}</textarea></label><label class="form-label">2. 부족한 점<textarea id="improve_point" class="control" rows="5">${parsed.improve_point}</textarea></label></div></section>
+  <section class="panel journal-section"><div class="ops-kicker">C. TOMORROW</div><h3>C. 내일의 목표</h3><textarea id="tomorrow_goal" class="control" rows="8">${parsed.tomorrow_goal}</textarea></section>
+  <section class="panel journal-section"><div class="ops-kicker">D. SELF CARE</div><h3>D. 오늘의 자기관리</h3><textarea id="selfcare_note" class="control" rows="5">${parsed.selfcare_note}</textarea>
+   <div class="upload-zone"><b>📷 팩 · 운동 사진 첨부</b><p class="muted">현재는 사진 선택과 미리보기까지 지원합니다. 영구 사진 보관은 Storage 연결 단계에서 추가됩니다.</p><input id="selfcare_photos" type="file" accept="image/*" multiple><div id="selfcare_preview" class="photo-preview"></div></div></section>
+  <section class="panel journal-section"><div class="ops-kicker">E. DAILY SALES</div><h3>E. 오늘의 매출보고</h3><div class="sales-report-grid"><div class="report-box"><span>관리매출</span><b>${won(salesToday)}</b></div><div class="report-box"><span>제품매출</span><b>${won(productToday)}</b></div><div class="report-box"><span>이달의 총매출</span><b>${won(monthTotal)}</b></div></div></section>
+  <section class="panel journal-section"><div class="ops-kicker">F. GRATITUDE</div><div class="section-head"><h3>F. 감사일기 30개</h3><span class="badge green">30개</span></div>${lineInputs("gratitude",30,"감사한 일",parsed.gratitudes)}</section>
+ </div>`;
+}
 function previewSelfcarePhotos(){
  const input=$("#selfcare_photos"), target=$("#selfcare_preview");
  if(!input||!target)return;
@@ -429,7 +480,7 @@ async function saveDailyJournal(){
 
  const payload={
    user_id:user.id,
-   entry_date:todayISO(),
+   entry_date:selectedJournalDate,
    gratitude_1:gratitudes[0]||null,
    gratitude_2:gratitudes[1]||null,
    gratitude_3:gratitudes[2]||null,
@@ -444,7 +495,7 @@ async function saveDailyJournal(){
    })
  };
 
- const existing=D.gratitude?.[0];
+ const existing=getJournalRow(selectedJournalDate);
  let result;
  if(existing?.id){
    result=await client.from("yuni_gratitude").update(payload).eq("id",existing.id).eq("user_id",user.id);
@@ -452,12 +503,13 @@ async function saveDailyJournal(){
    result=await client.from("yuni_gratitude").insert(payload);
  }
  if(result.error){toast("저장 오류: "+result.error.message);return}
- toast("오늘의 기록과 감사일기가 저장되었습니다.");
+ toast("이 날짜의 기록과 감사일기가 저장되었습니다.");
  await loadAll();
+ D.gratitude=D.gratitudeHistory.filter(x=>x.entry_date===selectedJournalDate);
  render("gratitude");
 }
 
-function budget(){const rows=(preview?[{entry_date:todayISO(),entry_type:"지출",category:"생활",description:"식비",amount:32000}]:D.budget).map(x=>[x.entry_date,x.entry_type,x.category||"",x.description||"",won(x.amount)]);return `${pageHead("유니 가계부","개인 수입과 지출을 사업 자금과 분리해 관리합니다.",`<button class="primary" onclick="openForm('budget')">＋ 내역 등록</button>`)}${table(["날짜","구분","분류","내용","금액"],rows)}`}
+function budget(){const rows=(preview?[{entry_date:selectedJournalDate,entry_type:"지출",category:"생활",description:"식비",amount:32000}]:D.budget).map(x=>[x.entry_date,x.entry_type,x.category||"",x.description||"",won(x.amount)]);return `${pageHead("유니 가계부","개인 수입과 지출을 사업 자금과 분리해 관리합니다.",`<button class="primary" onclick="openForm('budget')">＋ 내역 등록</button>`)}${table(["날짜","구분","분류","내용","금액"],rows)}`}
 function sns(){return simplePage("SNS 정보함","아이디어와 참고자료를 채널별로 모아둡니다.",[["인스타","릴스·캐러셀 아이디어"],["스레드","공감형 글감"],["블로그","검색 키워드"],["유튜브","영상 아이디어"],["후킹 문구","첫 3초 소재"],["저장자료","참고 링크·메모"]],`<button class="primary" onclick="toast('SNS 메모 저장을 다음 단계에서 연결합니다.')">＋ 아이디어 저장</button>`)}
 function assistant(){return `${pageHead("AI 비서","예에스테틱과 유니의 정보를 바탕으로 업무를 정리하는 공간입니다.")}<div class="quickcards">${["오늘 해야 할 일 정리해줘","오늘 예약 고객 브리핑","장기 미방문 고객 찾아줘","이번 달 매출 요약해줘","인스타 릴스 초안 만들어줘","오늘 성과를 정리해줘"].map(x=>`<button class="action-card" onclick="toast('AI API 연결 후 실행됩니다.')"><b>🤖 ${x}</b><span>클릭 한 번으로 실행할 AI 명령</span></button>`).join("")}</div><div class="panel" style="margin-top:16px"><h3>AI 채팅</h3><textarea class="control" rows="5" placeholder="예: 오늘 무엇부터 해야 할까?"></textarea><button class="primary" style="margin-top:10px" onclick="toast('AI API는 다음 단계에서 안전하게 연결합니다.')">전송</button></div>`}
 function settings(){return `${pageHead("설정","계정과 시스템 연결상태를 확인합니다.")}<div class="grid"><div class="panel"><h3>Supabase</h3>${list([{t:"Project URL",s:CONFIG.url,b:"연결됨",k:"green"},{t:"Publishable Key",s:"브라우저용 키 적용",b:"정상",k:"green"}])}</div><div class="panel"><h3>로그인 계정</h3>${list([{t:"현재 사용자",s:user?.email||"미리보기 모드",b:user?"로그인":"미리보기",k:user?"green":""},{t:"권한",s:"owner / 최고관리자",b:"관리"}])}</div></div>`}
@@ -532,8 +584,8 @@ async function saveForm(type){
  if(type==="task"){table="yuni_tasks";payload={user_id:user.id,title:$("#f_title").value.trim(),task_date:todayISO(),priority:$("#f_priority").value,status:"미완료"}}
  if(type==="goal"){table="yuni_goals";payload={user_id:user.id,title:$("#f_title").value.trim(),goal_type:$("#f_type").value,due_date:$("#f_due").value||null,status:"진행중"}}
  if(type==="project"){table="yuni_projects";payload={user_id:user.id,title:$("#f_title").value.trim(),description:$("#f_desc").value,due_date:$("#f_due").value||null,status:"진행중",progress:0}}
- if(type==="gratitude"){table="yuni_gratitude";payload={user_id:user.id,entry_date:todayISO(),gratitude_1:$("#f_g1").value,gratitude_2:$("#f_g2").value,gratitude_3:$("#f_g3").value,reflection:$("#f_ref").value}}
- if(type==="budget"){table="yuni_budget_entries";payload={user_id:user.id,entry_date:todayISO(),entry_type:$("#f_type").value,category:$("#f_category").value,description:$("#f_desc").value,amount:Number($("#f_amount").value||0)}}
+ if(type==="gratitude"){table="yuni_gratitude";payload={user_id:user.id,entry_date:selectedJournalDate,gratitude_1:$("#f_g1").value,gratitude_2:$("#f_g2").value,gratitude_3:$("#f_g3").value,reflection:$("#f_ref").value}}
+ if(type==="budget"){table="yuni_budget_entries";payload={user_id:user.id,entry_date:selectedJournalDate,entry_type:$("#f_type").value,category:$("#f_category").value,description:$("#f_desc").value,amount:Number($("#f_amount").value||0)}}
  if(!table)return;
  const {error}=await client.from(table).insert(payload);
  if(error){toast("저장 오류: "+error.message);return}
