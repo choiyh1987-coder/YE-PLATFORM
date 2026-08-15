@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#392821">
-<title>YE PLATFORM v1.1.3</title>
+<title>YE PLATFORM v1.1.4</title>
 <style>
 *{box-sizing:border-box} :root{
  --brown:#392821;--brown2:#271b17;--gold:#d6ad72;--cream:#f6f0e9;--paper:#fff;
@@ -161,7 +161,7 @@ th,td{padding:11px 12px;font-size:12px}
  <div class="profile"><strong id="profileName">최윤희</strong><span id="profileRole">최고관리자</span><button id="logoutBtn">로그아웃</button></div>
 </aside>
 <main>
- <header><button id="openSide" class="ghost mobile">☰</button><div><p id="area" class="eyebrow">YE PLATFORM · v1.1.3</p><h2 id="title">홈 · 오늘의 브리핑</h2></div><button id="quickBtn" class="primary">＋ 빠른 등록</button></header>
+ <header><button id="openSide" class="ghost mobile">☰</button><div><p id="area" class="eyebrow">YE PLATFORM · v1.1.4</p><h2 id="title">홈 · 오늘의 브리핑</h2></div><button id="quickBtn" class="primary">＋ 빠른 등록</button></header>
  <section id="content"></section>
 </main>
 </div>
@@ -286,6 +286,7 @@ window.YE_SAFE_PREVIEW=function(){
 <script>
 const CONFIG={url:"https://lvfaomlpcrrnffncvffy.supabase.co",key:"sb_publishable_4ZGSNTPI3zW-j-SYp4pHrA_quzvTIPG"};
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+var renders={};
 let client=null,user=null,preview=false,currentPage='home',selectedJournalDate=todayISO(),calendarCursor=new Date();
 let D={customers:[],appointments:[],programs:[],products:[],sales:[],expenses:[],sales6:[],expenses6:[],passes:[],tasks:[],goals:[],projects:[],habits:[],gratitude:[],gratitudeHistory:[],budget:[],consultations:[],treatments:[],contacts:[]};
 
@@ -627,7 +628,7 @@ function sns(){return simplePage("SNS 정보함","아이디어와 참고자료�
 function assistant(){return `${pageHead("AI 비서","예에스테틱과 유니의 정보를 바탕으로 업무를 정리하는 공간입니다.")}<div class="quickcards">${["오늘 해야 할 일 정리해줘","오늘 예약 고객 브리핑","장기 미방문 고객 찾아줘","이번 달 매출 요약해줘","인스타 릴스 초안 만들어줘","오늘 성과를 정리해줘"].map(x=>`<button class="action-card" onclick="toast('AI API 연결 후 실행됩니다.')"><b>🤖 ${x}</b><span>클릭 한 번으로 실행할 AI 명령</span></button>`).join("")}</div><div class="panel" style="margin-top:16px"><h3>AI 채팅</h3><textarea class="control" rows="5" placeholder="예: 오늘 무엇부터 해야 할까?"></textarea><button class="primary" style="margin-top:10px" onclick="toast('AI API는 다음 단계에서 안전하게 연결합니다.')">전송</button></div>`}
 function settings(){return `${pageHead("설정","계정과 시스템 연결상태를 확인합니다.")}<div class="grid"><div class="panel"><h3>Supabase</h3>${list([{t:"Project URL",s:CONFIG.url,b:"연결됨",k:"green"},{t:"Publishable Key",s:"브라우저용 키 적용",b:"정상",k:"green"}])}</div><div class="panel"><h3>로그인 계정</h3>${list([{t:"현재 사용자",s:user?.email||"미리보기 모드",b:user?"로그인":"미리보기",k:user?"green":""},{t:"권한",s:"owner / 최고관리자",b:"관리"}])}</div></div>`}
 
-const renders={home,shop:shopDashboard,appointments,customers,consultations,treatments,photos,passes,programs,products,inventory,sales,expenses,settlement,marketing,reviews,documents,yuni:yuniDashboard,goals,monthly,weekly,today:todayPlan,projects,calendar,habits,gratitude,budget,sns,assistant,settings};
+renders={home,shop:shopDashboard,appointments,customers,consultations,treatments,photos,passes,programs,products,inventory,sales,expenses,settlement,marketing,reviews,documents,yuni:yuniDashboard,goals,monthly,weekly,today:todayPlan,projects,calendar,habits,gratitude,budget,sns,assistant,settings};
 function render(p){
   try{
     currentPage=p;
@@ -706,6 +707,7 @@ async function toggleTask(id,checked){if(!client||preview)return;const {error}=a
 async function enter(){
   $("#login")?.classList.add("hidden");
   $("#app")?.classList.remove("hidden");
+  await new Promise(resolve=>setTimeout(resolve,0));
   render("home");
   try{
     await Promise.race([
