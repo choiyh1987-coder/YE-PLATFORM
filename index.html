@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#392821">
-<title>YE PLATFORM v1.1.2</title>
+<title>YE PLATFORM v1.1.3</title>
 <style>
 *{box-sizing:border-box} :root{
  --brown:#392821;--brown2:#271b17;--gold:#d6ad72;--cream:#f6f0e9;--paper:#fff;
@@ -161,7 +161,7 @@ th,td{padding:11px 12px;font-size:12px}
  <div class="profile"><strong id="profileName">최윤희</strong><span id="profileRole">최고관리자</span><button id="logoutBtn">로그아웃</button></div>
 </aside>
 <main>
- <header><button id="openSide" class="ghost mobile">☰</button><div><p id="area" class="eyebrow">YE PLATFORM</p><h2 id="title">홈 · 오늘의 브리핑</h2></div><button id="quickBtn" class="primary">＋ 빠른 등록</button></header>
+ <header><button id="openSide" class="ghost mobile">☰</button><div><p id="area" class="eyebrow">YE PLATFORM · v1.1.3</p><h2 id="title">홈 · 오늘의 브리핑</h2></div><button id="quickBtn" class="primary">＋ 빠른 등록</button></header>
  <section id="content"></section>
 </main>
 </div>
@@ -241,6 +241,30 @@ window.YE_SAFE_LOGIN=async function(){
     if(btn){btn.disabled=false;btn.textContent="로그인";}
   }
 };
+
+window.YE_RENDER_PAGE=function(page){
+  try{
+    if(typeof render==="function"){
+      render(page);
+      return;
+    }
+    var title=document.getElementById("title");
+    var content=document.getElementById("content");
+    if(title) title.textContent=page==="home"?"홈 · 오늘의 브리핑":page;
+    if(content) content.innerHTML='<div class="panel"><h3>화면을 불러오는 중입니다.</h3><p class="muted">새로고침 후 다시 시도해주세요.</p></div>';
+  }catch(e){
+    console.error("render error",e);
+    var c=document.getElementById("content");
+    if(c)c.innerHTML='<div class="panel"><h3>화면 표시 오류</h3><p class="muted">'+String(e.message||e)+'</p></div>';
+  }
+};
+document.addEventListener("click",function(e){
+  var b=e.target.closest && e.target.closest("[data-page]");
+  if(b){
+    e.preventDefault();
+    window.YE_RENDER_PAGE(b.getAttribute("data-page"));
+  }
+});
 window.YE_SAFE_PREVIEW=function(){
   try{
     if(typeof preview!=="undefined") preview=true;
@@ -604,25 +628,22 @@ function assistant(){return `${pageHead("AI 비서","예에스테틱과 유니�
 function settings(){return `${pageHead("설정","계정과 시스템 연결상태를 확인합니다.")}<div class="grid"><div class="panel"><h3>Supabase</h3>${list([{t:"Project URL",s:CONFIG.url,b:"연결됨",k:"green"},{t:"Publishable Key",s:"브라우저용 키 적용",b:"정상",k:"green"}])}</div><div class="panel"><h3>로그인 계정</h3>${list([{t:"현재 사용자",s:user?.email||"미리보기 모드",b:user?"로그인":"미리보기",k:user?"green":""},{t:"권한",s:"owner / 최고관리자",b:"관리"}])}</div></div>`}
 
 const renders={home,shop:shopDashboard,appointments,customers,consultations,treatments,photos,passes,programs,products,inventory,sales,expenses,settlement,marketing,reviews,documents,yuni:yuniDashboard,goals,monthly,weekly,today:todayPlan,projects,calendar,habits,gratitude,budget,sns,assistant,settings};
-function render(p){currentPage=p;$("#title").textContent=names[p];$("#area").textContent=p==="home"?"YE PLATFORM":(["yuni","goals","monthly","weekly","today","projects","calendar","habits","gratitude","budget","sns"].includes(p)?"유니":(["assistant","settings"].includes(p)?"YE PLATFORM":"예에스테틱"));$("#content").innerHTML=(renders[p]||home)();$$("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===p));if(innerWidth<781)$("#side").classList.remove("open")}
-
-function customerOptions(){return `<option value="">고객 선택</option>${D.customers.map(c=>`<option value="${c.id}">${c.name}</option>`).join("")}`}
-function programOptions(){return `<option value="">프로그램 선택</option>${D.programs.map(p=>`<option value="${p.id}">${p.name}</option>`).join("")}`}
-function openModal(title,body){$("#modalTitle").textContent=title;$("#modalBody").innerHTML=body;$("#modal").classList.remove("hidden")}
-function closeModal(){$("#modal").classList.add("hidden")}
-function openForm(type,presetCustomer=''){
- if(preview){toast("실제 계정으로 로그인하면 저장할 수 있습니다.");return}
- const f={
- customer:["고객 등록",`<label class="form-label">고객명<input id="f_name" class="control"></label><label class="form-label">연락처<input id="f_phone" class="control"></label><label class="form-label">등급<select id="f_grade" class="control"><option>일반</option><option>신규</option><option>재방문</option><option>VIP</option></select></label><button class="primary full" style="margin-top:18px" onclick="saveForm('customer')">저장</button>`],
- appointment:["예약 등록",`<div class="form-grid"><label class="form-label">고객<select id="f_customer" class="control">${customerOptions()}</select></label><label class="form-label">프로그램<select id="f_program" class="control">${programOptions()}</select></label><label class="form-label">날짜<input id="f_date" type="date" class="control" value="${todayISO()}"></label><label class="form-label">시간<input id="f_time" type="time" class="control"></label><label class="form-label">상태<select id="f_status" class="control"><option>예약대기</option><option selected>예약확정</option><option>방문완료</option></select></label><label class="form-label">예약금<input id="f_deposit" type="number" class="control" value="30000"></label></div><button class="primary full" style="margin-top:18px" onclick="saveForm('appointment')">저장</button>`],
- expense:["지출 등록",`<div class="form-grid"><label class="form-label">날짜<input id="f_date" type="date" class="control" value="${todayISO()}"></label><label class="form-label">분류<select id="f_category" class="control"><option>제품매입</option><option>소모품</option><option>광고비</option><option>임대료</option><option>관리비</option><option>교육비</option><option>기타</option></select></label><label class="form-label">금액<input id="f_amount" type="number" class="control"></label><label class="form-label">결제수단<select id="f_method" class="control"><option>카드</option><option>현금</option><option>계좌이체</option></select></label></div><label class="form-label">내용<input id="f_desc" class="control"></label><button class="primary full" style="margin-top:18px" onclick="saveForm('expense')">저장</button>`],
- product:["제품 등록",`<div class="form-grid"><label class="form-label">제품명<input id="f_name" class="control"></label><label class="form-label">브랜드<input id="f_brand" class="control"></label><label class="form-label">판매가<input id="f_price" type="number" class="control"></label><label class="form-label">현재재고<input id="f_stock" type="number" class="control" value="0"></label><label class="form-label">안전재고<input id="f_safe" type="number" class="control" value="2"></label></div><button class="primary full" style="margin-top:18px" onclick="saveForm('product')">저장</button>`],
- task:["오늘 할 일",`<label class="form-label">할 일<input id="f_title" class="control"></label><label class="form-label">우선순위<select id="f_priority" class="control"><option>높음</option><option selected>보통</option><option>낮음</option></select></label><button class="primary full" style="margin-top:18px" onclick="saveForm('task')">저장</button>`],
- goal:["목표 등록",`<label class="form-label">목표<input id="f_title" class="control"></label><div class="form-grid"><label class="form-label">구분<select id="f_type" class="control"><option>annual</option><option>monthly</option><option>weekly</option></select></label><label class="form-label">마감일<input id="f_due" type="date" class="control"></label></div><button class="primary full" style="margin-top:18px" onclick="saveForm('goal')">저장</button>`],
- project:["프로젝트 등록",`<label class="form-label">프로젝트명<input id="f_title" class="control"></label><label class="form-label">설명<textarea id="f_desc" class="control" rows="4"></textarea></label><label class="form-label">마감일<input id="f_due" type="date" class="control"></label><button class="primary full" style="margin-top:18px" onclick="saveForm('project')">저장</button>`],
- gratitude:["감사일기",`<label class="form-label">감사한 일 1<input id="f_g1" class="control"></label><label class="form-label">감사한 일 2<input id="f_g2" class="control"></label><label class="form-label">감사한 일 3<input id="f_g3" class="control"></label><label class="form-label">오늘의 기록<textarea id="f_ref" class="control" rows="4"></textarea></label><button class="primary full" style="margin-top:18px" onclick="saveForm('gratitude')">저장</button>`],
- budget:["가계부 등록",`<div class="form-grid"><label class="form-label">구분<select id="f_type" class="control"><option>지출</option><option>수입</option></select></label><label class="form-label">분류<input id="f_category" class="control"></label><label class="form-label">금액<input id="f_amount" type="number" class="control"></label><label class="form-label">내용<input id="f_desc" class="control"></label></div><button class="primary full" style="margin-top:18px" onclick="saveForm('budget')">저장</button>`]
- }[type]; if(f){openModal(f[0],f[1]);if(type==="appointment"&&presetCustomer&&$("#f_customer"))$("#f_customer").value=presetCustomer}
+function render(p){
+  try{
+    currentPage=p;
+    const titleEl=$("#title"), areaEl=$("#area"), contentEl=$("#content");
+    if(titleEl) titleEl.textContent=names[p]||"YE PLATFORM";
+    if(areaEl) areaEl.textContent=p==="home"?"YE PLATFORM":(["yuni","goals","monthly","weekly","today","projects","calendar","habits","gratitude","budget","sns"].includes(p)?"유니":(["assistant","settings"].includes(p)?"YE PLATFORM":"예에스테틱"));
+    const fn=renders[p]||home;
+    if(!contentEl) throw new Error("content 영역을 찾지 못했습니다.");
+    contentEl.innerHTML=fn();
+    $$("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===p));
+    if(innerWidth<781)$("#side")?.classList.remove("open");
+  }catch(e){
+    console.error("YE render error",p,e);
+    const c=$("#content");
+    if(c)c.innerHTML=`<div class="panel"><div class="ops-kicker">SYSTEM</div><h3>화면을 불러오지 못했습니다.</h3><p class="muted">${e.message||e}</p><button class="primary" onclick="location.reload()">새로고침</button></div>`;
+  }
 }
 
 
@@ -682,29 +703,19 @@ async function saveForm(type){
 }
 async function toggleTask(id,checked){if(!client||preview)return;const {error}=await client.from("yuni_tasks").update({status:checked?"완료":"미완료",completed_at:checked?new Date().toISOString():null}).eq("id",id).eq("user_id",user.id);if(error)return toast(error.message);await loadAll();render(currentPage)}
 
-async function enter(){ $("#login").classList.add("hidden");$("#app").classList.remove("hidden");await loadAll();render("home")}
-
-async function ensureSupabase(){
-  if(window.supabase?.createClient) return true;
-
-  const urls=[
-    "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
-    "https://unpkg.com/@supabase/supabase-js@2"
-  ];
-
-  for(const url of urls){
-    try{
-      await new Promise((resolve,reject)=>{
-        const s=document.createElement("script");
-        s.src=url;
-        s.onload=resolve;
-        s.onerror=reject;
-        document.head.appendChild(s);
-      });
-      if(window.supabase?.createClient) return true;
-    }catch(e){}
+async function enter(){
+  $("#login")?.classList.add("hidden");
+  $("#app")?.classList.remove("hidden");
+  render("home");
+  try{
+    await Promise.race([
+      loadAll(),
+      new Promise(resolve=>setTimeout(resolve,5000))
+    ]);
+  }catch(e){
+    console.warn("loadAll",e);
   }
-  return false;
+  render(currentPage||"home");
 }
 function showLoginError(message){
   const el=$("#loginMsg");
@@ -772,7 +783,7 @@ async function start(){
     $("#openSide").onclick=()=>$("#side").classList.add("open");
     $("#closeSide").onclick=()=>$("#side").classList.remove("open");
     $$(".group").forEach(b=>b.onclick=()=>b.nextElementSibling.classList.toggle("hidden"));
-    $$("[data-page]").forEach(b=>b.onclick=()=>render(b.dataset.page));
+    $$("[data-page]").forEach(b=>b.onclick=()=>window.YE_RENDER_PAGE(b.dataset.page));
     $("#closeModal").onclick=closeModal;
     document.addEventListener("change",e=>{
       if(e.target&&e.target.id==="selfcare_photos") previewSelfcarePhotos();
