@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#3b2922">
-<title>YE PLATFORM v1.4</title>
+<title>YE PLATFORM v1.5</title>
 <style>
 *{box-sizing:border-box} :root{
  --brown:#3b2922;--brown2:#281b17;--gold:#c79659;--cream:#f6f0e9;--paper:#fff;
@@ -65,6 +65,24 @@ header h2{font-size:23px;margin:3px 0 0}#content{padding:24px 28px;max-width:160
 .file-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;background:#f3eee8;font-size:10px}
 @media(max-width:900px){.summary-strip{grid-template-columns:repeat(2,1fr)}}
 
+
+/* v1.5 - contextual dashboard back + business cashbook */
+.page-head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.dashboard-back{background:#fff;border:1px solid var(--line);color:var(--brown);padding:10px 13px;border-radius:12px;font-weight:900}
+.ledger-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border:1px solid var(--line);border-radius:15px;padding:10px 12px;margin-bottom:12px}
+.ledger-nav strong{font-family:var(--serif);font-size:19px}
+.ledger-nav .nav-side{display:flex;align-items:center;gap:7px}
+.ledger-table .income{font-weight:900}
+.ledger-table .outflow{font-weight:900}
+.ledger-table .balance{font-weight:900}
+.ledger-type{display:inline-flex;padding:5px 8px;border-radius:999px;font-size:10px;font-weight:900;background:#f6eee7}
+.ledger-type.out{background:#f7e5e6}
+.cashbook-note{padding:11px 13px;border-radius:13px;background:#fff8ee;border:1px solid #eddcc6;color:var(--muted);font-size:11px;margin-bottom:12px}
+@media(max-width:780px){
+ .page-head{align-items:flex-start}.page-head-actions{width:100%;justify-content:flex-start}
+ .ledger-nav{align-items:flex-start;flex-direction:column}
+}
+
 </style>
 </head>
 <body>
@@ -76,7 +94,7 @@ header h2{font-size:23px;margin:3px 0 0}#content{padding:24px 28px;max-width:160
   <label class="label">비밀번호<input id="password" class="control" type="password"></label>
   <button id="loginBtn" class="primary full" type="button">로그인</button>
   <button id="previewBtn" class="secondary full" type="button">대시보드 미리보기</button>
-  <p id="loginMsg" class="msg"></p><p class="small">YE PLATFORM v1.4 전체 등록버튼 복구</p>
+  <p id="loginMsg" class="msg"></p><p class="small">YE PLATFORM v1.5 대시보드 복귀 · 사업 가계부</p>
  </div>
 </section>
 
@@ -87,7 +105,7 @@ header h2{font-size:23px;margin:3px 0 0}#content{padding:24px 28px;max-width:160
   <button data-page="home">🏠 홈</button>
   <button class="group" data-group="shop">🩷 예에스테틱 <span>⌄</span></button>
   <div class="sub" data-sub="shop">
-   <button data-page="shop">대시보드</button><button data-page="appointments">예약관리</button><button data-page="customers">고객관리</button><button data-page="consultations">피부상담</button><button data-page="treatments">관리기록</button><button data-page="photos">전후사진</button><button data-page="passes">이용권관리</button><button data-page="programs">프로그램관리</button><button data-page="products">제품관리</button><button data-page="inventory">재고관리</button><button data-page="sales">매출관리</button><button data-page="expenses">지출관리</button><button data-page="settlement">자동결산</button><button data-page="marketing">마케팅</button><button data-page="reviews">리뷰관리</button><button data-page="documents">문서관리</button>
+   <button data-page="shop">대시보드</button><button data-page="appointments">예약관리</button><button data-page="customers">고객관리</button><button data-page="consultations">피부상담</button><button data-page="treatments">관리기록</button><button data-page="photos">전후사진</button><button data-page="passes">이용권관리</button><button data-page="programs">프로그램관리</button><button data-page="products">제품관리</button><button data-page="inventory">재고관리</button><button data-page="sales">매출·입출금</button><button data-page="expenses">지출관리</button><button data-page="settlement">자동결산</button><button data-page="marketing">마케팅</button><button data-page="reviews">리뷰관리</button><button data-page="documents">문서관리</button>
   </div>
   <button class="group" data-group="yuni">👩 유니 <span>⌄</span></button>
   <div class="sub" data-sub="yuni">
@@ -98,7 +116,7 @@ header h2{font-size:23px;margin:3px 0 0}#content{padding:24px 28px;max-width:160
  <div class="profile"><strong>최윤희</strong><span id="profileEmail">최고관리자</span><button id="logoutBtn">로그아웃</button></div>
 </aside>
 <main>
-<header><button id="openSide" class="ghost mobile">☰</button><div><p id="area" class="eyebrow">YE PLATFORM · v1.4</p><h2 id="title">홈 · 오늘의 브리핑</h2></div><button id="quickBtn" class="primary">＋ 빠른 등록</button></header>
+<header><button id="openSide" class="ghost mobile">☰</button><div><p id="area" class="eyebrow">YE PLATFORM · v1.5</p><h2 id="title">홈 · 오늘의 브리핑</h2></div><button id="quickBtn" class="primary">＋ 빠른 등록</button></header>
 <section id="content"></section>
 </main>
 </div>
@@ -111,7 +129,7 @@ header h2{font-size:23px;margin:3px 0 0}#content{padding:24px 28px;max-width:160
 "use strict";
 const CONFIG={url:"https://lvfaomlpcrrnffncvffy.supabase.co",key:"sb_publishable_4ZGSNTPI3zW-j-SYp4pHrA_quzvTIPG"};
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-let client=null,user=null,preview=false,currentPage="home",selectedJournalDate=todayISO(),calendarCursor=new Date();
+let client=null,user=null,preview=false,currentPage="home",selectedJournalDate=todayISO(),calendarCursor=new Date(),businessLedgerMonth=todayISO().slice(0,7);
 let D={customers:[],appointments:[],programs:[],products:[],sales:[],expenses:[],sales6:[],expenses6:[],passes:[],tasks:[],goals:[],projects:[],habits:[],gratitudeHistory:[],budget:[],consultations:[],treatments:[],photos2:[],marketing2:[],reviews2:[],documents2:[],monthly2:[],weekly2:[],sns2:[],stockMoves:[],contacts:[]};
 const demo={
  appointments:[{time:"10:00",name:"김○○",program:"레디언스필",status:"예약확정"},{time:"13:00",name:"이○○",program:"페이스핏톡스",status:"예약확정"},{time:"16:00",name:"박○○",program:"장벽재생관리",status:"예약대기"}],
@@ -119,7 +137,7 @@ const demo={
  tasks:["오늘 예약 고객 사전 확인","장기 미방문 고객 2명 연락","인스타 릴스 업로드","벨벳크림 재고 확인"],
  projects:["YE PLATFORM 안정화","SNS 콘텐츠 시스템","개인 목표관리"]
 };
-const names={home:"홈 · 오늘의 브리핑",shop:"예에스테틱 대시보드",appointments:"예약관리",customers:"고객관리",consultations:"피부상담",treatments:"관리기록",photos:"전후사진",passes:"이용권관리",programs:"프로그램관리",products:"제품관리",inventory:"재고관리",sales:"매출관리",expenses:"지출관리",settlement:"자동결산",marketing:"마케팅",reviews:"리뷰관리",documents:"문서관리",yuni:"유니 대시보드",goals:"목표관리",monthly:"월간계획",weekly:"주간계획",today:"오늘의 계획",projects:"프로젝트",calendar:"캘린더",habits:"습관관리",gratitude:"감사일기",budget:"유니 가계부",sns:"SNS 정보함",assistant:"AI 비서",settings:"설정"};
+const names={home:"홈 · 오늘의 브리핑",shop:"예에스테틱 대시보드",appointments:"예약관리",customers:"고객관리",consultations:"피부상담",treatments:"관리기록",photos:"전후사진",passes:"이용권관리",programs:"프로그램관리",products:"제품관리",inventory:"재고관리",sales:"매출·입출금",expenses:"지출관리",settlement:"자동결산",marketing:"마케팅",reviews:"리뷰관리",documents:"문서관리",yuni:"유니 대시보드",goals:"목표관리",monthly:"월간계획",weekly:"주간계획",today:"오늘의 계획",projects:"프로젝트",calendar:"캘린더",habits:"습관관리",gratitude:"감사일기",budget:"유니 가계부",sns:"SNS 정보함",assistant:"AI 비서",settings:"설정"};
 
 function todayISO(){return new Date().toISOString().slice(0,10)}
 function monthStart(d=new Date()){return new Date(d.getFullYear(),d.getMonth(),1).toISOString().slice(0,10)}
@@ -132,7 +150,15 @@ function metric(a,b){return `<div class="metric"><span>${a}</span><b>${b}</b></d
 function badge(t,k=""){return `<span class="badge ${k}">${t}</span>`}
 function list(items){return `<div class="list">${items.map(x=>`<div class="row"><div><b>${x.t}</b>${x.s?`<br><small>${x.s}</small>`:""}</div>${x.b?badge(x.b,x.k||""):""}</div>`).join("")}</div>`}
 function table(headers,rows){if(!rows.length)return `<div class="panel empty"><b>아직 등록된 내용이 없습니다.</b>등록 버튼으로 첫 기록을 만들어보세요.</div>`;return `<div class="table-wrap"><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c??""}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`}
-function pageHead(t,d,a=""){return `<div class="page-head"><div><h3>${t}</h3><p class="muted">${d}</p></div>${a}</div>`}
+function pageHead(t,d,a=""){
+ const shopPages=["appointments","customers","consultations","treatments","photos","passes","programs","products","inventory","sales","expenses","settlement","marketing","reviews","documents"];
+ const yuniPages=["goals","monthly","weekly","today","projects","calendar","habits","gratitude","budget","sns"];
+ let back="";
+ if(shopPages.includes(currentPage))back=`<button class="dashboard-back" data-go="shop">🏠 대시보드</button>`;
+ else if(yuniPages.includes(currentPage))back=`<button class="dashboard-back" data-go="yuni">🏠 유니 대시보드</button>`;
+ else if(currentPage==="shop"||currentPage==="yuni")back=`<button class="dashboard-back" data-go="home">🏠 홈</button>`;
+ return `<div class="page-head"><div><h3>${t}</h3><p class="muted">${d}</p></div><div class="page-head-actions">${back}${a}</div></div>`
+}
 function toast(t){$("#toast").textContent=t;$("#toast").classList.remove("hidden");setTimeout(()=>$("#toast").classList.add("hidden"),2200)}
 function openModal(t,b){$("#modalTitle").textContent=t;$("#modalBody").innerHTML=b;$("#modal").classList.remove("hidden")}
 function closeModal(){$("#modal").classList.add("hidden")}
@@ -208,7 +234,7 @@ function home(){
  <div class="panel"><h3>🩷 예에스테틱</h3>${list([{t:"재고 부족",s:preview?"2개":`${D.products.filter(p=>Number(p.current_stock)<=Number(p.safety_stock)).length}개`,b:"재고"},{t:"오늘 완료 예약",s:`${ap.filter(a=>a.status==="방문완료").length}건`,b:"예약"}])}</div>
  <div class="panel"><h3>👩 유니</h3>${list([{t:"진행 프로젝트",s:preview?"3개":`${D.projects.length}개`,b:"프로젝트"},{t:"감사일기",s:(preview||D.gratitudeHistory.some(x=>x.entry_date===todayISO()))?"작성됨":"미작성",b:"기록"}])}</div></div>`;
 }
-function shop(){const month=todayISO().slice(0,7),ms=preview?6200000:D.sales6.filter(x=>monthKey(x.sale_date)===month).reduce((s,x)=>s+Number(x.net_amount||0),0),me=preview?1830000:D.expenses6.filter(x=>monthKey(x.expense_date)===month).reduce((s,x)=>s+Number(x.amount||0),0);return `${pageHead("경영 대시보드","매출·비용·예약·고객을 한눈에 확인합니다.")}<div class="cards">${metric("이번 달 매출",won(ms))}${metric("이번 달 비용",won(me))}${metric("예상 순이익",won(ms-me))}${metric("사용 중 이용권",preview?"4개":`${D.passes.length}개`)}</div><div class="quickcards">${[["📅 예약관리","예약 등록과 방문상태","appointments"],["👩 고객관리","고객 통합기록","customers"],["🎫 이용권","잔여횟수·만료일","passes"],["🧴 제품·재고","제품과 안전재고","products"],["💰 매출","관리·제품 매출","sales"],["📊 자동결산","매출·지출 요약","settlement"]].map(x=>`<button class="action-card" data-go="${x[2]}"><b>${x[0]}</b><span>${x[1]}</span></button>`).join("")}</div>`}
+function shop(){const month=todayISO().slice(0,7),ms=preview?6200000:D.sales6.filter(x=>monthKey(x.sale_date)===month).reduce((s,x)=>s+Number(x.net_amount||0),0),me=preview?1830000:D.expenses6.filter(x=>monthKey(x.expense_date)===month).reduce((s,x)=>s+Number(x.amount||0),0);return `${pageHead("경영 대시보드","매출·비용·예약·고객을 한눈에 확인합니다.")}<div class="cards">${metric("이번 달 매출",won(ms))}${metric("이번 달 비용",won(me))}${metric("예상 순이익",won(ms-me))}${metric("사용 중 이용권",preview?"4개":`${D.passes.length}개`)}</div><div class="quickcards">${[["📅 예약관리","예약 등록과 방문상태","appointments"],["👩 고객관리","고객 통합기록","customers"],["🎫 이용권","잔여횟수·만료일","passes"],["🧴 제품·재고","제품과 안전재고","products"],["💰 매출·입출금","입금·출금·잔액 한눈에","sales"],["📊 자동결산","매출·지출 요약","settlement"]].map(x=>`<button class="action-card" data-go="${x[2]}"><b>${x[0]}</b><span>${x[1]}</span></button>`).join("")}</div>`}
 function appointments(){const src=preview?demo.appointments:todayAppointments().map(a=>({time:(a.start_time||"").slice(0,5),name:D.customers.find(c=>c.id===a.customer_id)?.name||"고객",program:D.programs.find(p=>p.id===a.program_id)?.name||"",status:a.status}));return `${pageHead("예약관리","예약 일정과 방문 상태를 관리합니다.",`<button class="primary" data-action="appointment">＋ 예약 등록</button>`)}${table(["시간","고객","프로그램","상태"],src.map(a=>[a.time,a.name,a.program,badge(a.status,a.status==="방문완료"?"green":"")]))}`}
 function customers(){const src=preview?demo.customers:D.customers;return `${pageHead("고객관리","고객 기본정보와 방문 이력을 관리합니다.",`<button class="primary" data-action="customer">＋ 고객 등록</button>`)}${table(["고객명","연락처","등급","최근방문"],src.map(c=>[c.name,c.phone||"",c.customer_grade||"일반",c.last_visit_date||"-"]))}`}
 function generic(title,desc,items){return `${pageHead(title,desc)}<div class="quickcards">${items.map(x=>`<div class="action-card"><b>${x[0]}</b><span>${x[1]}</span></div>`).join("")}</div>`}
@@ -241,11 +267,63 @@ function inventory(){
  <div class="sheet">${table(["제품","현재재고","안전재고","판매가","재고가치","상태"],rows)}</div>`;
 }
 function sales(){
- const month=todayISO().slice(0,7),m=D.sales6.filter(x=>monthKey(x.sale_date)===month);
- const total=m.reduce((s,x)=>s+Number(x.net_amount||0),0),care=m.filter(x=>x.sale_type==="관리").reduce((s,x)=>s+Number(x.net_amount||0),0),prod=m.filter(x=>x.sale_type==="제품").reduce((s,x)=>s+Number(x.net_amount||0),0),pass=m.filter(x=>x.sale_type==="이용권").reduce((s,x)=>s+Number(x.net_amount||0),0);
- return `${pageHead("매출관리","관리·제품·이용권 매출이 자동 합산됩니다.",`<div class="toolbar"><button class="ghost" data-export="sales">CSV</button><button class="primary" data-action="sale">＋ 매출 등록</button></div>`)}
- <div class="summary-strip"><div class="sum-box"><span>이달 총매출</span><b>${won(total)}</b></div><div class="sum-box"><span>관리매출</span><b>${won(care)}</b></div><div class="sum-box"><span>제품매출</span><b>${won(prod)}</b></div><div class="sum-box"><span>이용권매출</span><b>${won(pass)}</b></div></div>
- <div class="sheet">${table(["날짜","고객","구분","금액","결제상태"],m.map(x=>[x.sale_date,cname(x.customer_id),x.sale_type,won(x.net_amount),badge(x.payment_status||"결제완료",x.payment_status==="결제완료"?"green":"")]))}</div>`;
+ const month=businessLedgerMonth||todayISO().slice(0,7);
+ const incomes=(preview?
+   [{id:"demo1",sale_date:month+"-16",sale_type:"관리",net_amount:220000,payment_status:"결제완료",memo:"피부관리",customer_id:"demo"}]:
+   D.sales6.filter(x=>monthKey(x.sale_date)===month)
+ ).map(x=>({
+   date:x.sale_date,kind:"입금",category:x.sale_type||"매출",
+   detail:x.memo||((x.sale_type||"")+" 매출"),
+   party:preview?"김○○":cname(x.customer_id),
+   income:Number(x.net_amount||0),outflow:0,id:x.id
+ }));
+ const outs=(preview?
+   [{id:"demo2",expense_date:month+"-15",category:"재료비",description:"관리 소모품",amount:85000}]:
+   D.expenses6.filter(x=>monthKey(x.expense_date)===month)
+ ).map(x=>({
+   date:x.expense_date,kind:"출금",category:x.category||"기타",
+   detail:x.description||x.memo||"지출",
+   party:"",income:0,outflow:Number(x.amount||0),id:x.id
+ }));
+ const asc=[...incomes,...outs].sort((a,b)=>String(a.date).localeCompare(String(b.date))||(a.kind==="입금"?-1:1));
+ let running=0;
+ asc.forEach(x=>{running+=x.income-x.outflow;x.balance=running});
+ const rows=[...asc].reverse();
+ const totalIn=incomes.reduce((s,x)=>s+x.income,0);
+ const totalOut=outs.reduce((s,x)=>s+x.outflow,0);
+ const net=totalIn-totalOut;
+ const [yy,mm]=month.split("-");
+ const label=`${yy}년 ${Number(mm)}월`;
+ const prev=(()=>{
+   const d=new Date(Number(yy),Number(mm)-2,1);
+   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`
+ })();
+ const next=(()=>{
+   const d=new Date(Number(yy),Number(mm),1);
+   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`
+ })();
+ const body=rows.length?`<div class="table-wrap ledger-table"><table><thead><tr>
+  <th>날짜</th><th>구분</th><th>분류</th><th>내용</th><th>고객/거래처</th><th>입금</th><th>출금</th><th>잔액</th>
+ </tr></thead><tbody>${rows.map(x=>`<tr>
+  <td>${x.date}</td>
+  <td><span class="ledger-type ${x.kind==="출금"?"out":""}">${x.kind}</span></td>
+  <td>${x.category}</td><td>${x.detail||""}</td><td>${x.party||"-"}</td>
+  <td class="income">${x.income?won(x.income):""}</td>
+  <td class="outflow">${x.outflow?won(x.outflow):""}</td>
+  <td class="balance">${won(x.balance)}</td>
+ </tr>`).join("")}</tbody></table></div>`:
+ `<div class="panel empty"><b>이달 입출금 내역이 없습니다.</b>입금 또는 출금을 등록해보세요.</div>`;
+ return `${pageHead("매출·입출금","사업 가계부처럼 매출과 지출을 한 화면에서 확인합니다.",
+ `<div class="toolbar"><button class="ghost" data-export="business-ledger">CSV</button><button class="ghost" data-action="business-expense">－ 출금</button><button class="primary" data-action="business-income">＋ 입금</button></div>`)}
+ <div class="ledger-nav"><div class="nav-side"><button class="ghost" data-ledger-month="${prev}">‹</button><strong>${label}</strong><button class="ghost" data-ledger-month="${next}">›</button></div><div class="small">입금과 출금을 날짜순으로 자동 정리합니다.</div></div>
+ <div class="summary-strip">
+   <div class="sum-box"><span>이달 입금</span><b>${won(totalIn)}</b></div>
+   <div class="sum-box"><span>이달 출금</span><b>${won(totalOut)}</b></div>
+   <div class="sum-box"><span>이달 잔액</span><b>${won(net)}</b></div>
+   <div class="sum-box"><span>거래 건수</span><b>${rows.length}건</b></div>
+ </div>
+ <div class="cashbook-note">관리·제품·이용권 매출은 입금으로, 재료비·임대료·광고비 같은 비용은 출금으로 표시됩니다. 별도 계산 없이 이달 잔액까지 자동 계산됩니다.</div>
+ <div class="sheet">${body}</div>`;
 }
 function expenses(){
  const month=todayISO().slice(0,7),m=D.expenses6.filter(x=>monthKey(x.expense_date)===month),total=m.reduce((s,x)=>s+Number(x.amount||0),0);
@@ -299,7 +377,7 @@ function sns(){
  ${table(["채널","제목","상태","내용","링크"],rows.map(x=>[x.channel||"",x.title||"",badge(x.status||"아이디어"),x.content||"",x.reference_url||""]))}`;
 }
 function assistant(){return `${pageHead("AI 비서","예에스테틱과 유니 데이터를 바탕으로 업무를 정리합니다.")}<div class="quickcards">${["오늘 해야 할 일 정리","오늘 예약 브리핑","장기 미방문 고객","이번 달 매출 요약","인스타 릴스 초안","오늘 성과 정리"].map(x=>`<button class="action-card" data-ai="${x}"><b>🤖 ${x}</b><span>AI 연결 예정</span></button>`).join("")}</div>`}
-function settings(){return `${pageHead("설정","계정과 연결상태를 확인합니다.")}<div class="grid"><div class="panel"><h3>Supabase</h3>${list([{t:"Project URL",s:CONFIG.url,b:"연결",k:"green"},{t:"로그인 사용자",s:user?.email||"미리보기",b:user?"로그인":"미리보기"}])}</div><div class="panel"><h3>버전</h3><p>YE PLATFORM v1.4 전체 등록버튼 복구</p></div></div>`}
+function settings(){return `${pageHead("설정","계정과 연결상태를 확인합니다.")}<div class="grid"><div class="panel"><h3>Supabase</h3>${list([{t:"Project URL",s:CONFIG.url,b:"연결",k:"green"},{t:"로그인 사용자",s:user?.email||"미리보기",b:user?"로그인":"미리보기"}])}</div><div class="panel"><h3>버전</h3><p>YE PLATFORM v1.5 대시보드 복귀 · 사업 가계부</p></div></div>`}
 
 function parseJournal(row){if(!row)return{records:[],insight:"",good:"",bad:"",tomorrow:"",selfcare:"",gratitudes:[]};let p={};try{p=JSON.parse(row.reflection||"{}")}catch(e){}return{records:p.records||[],insight:p.insight||"",good:p.good_point||"",bad:p.improve_point||"",tomorrow:p.tomorrow_goal||"",selfcare:p.selfcare_note||"",gratitudes:p.gratitudes||[row.gratitude_1,row.gratitude_2,row.gratitude_3].filter(Boolean)}}
 function getJournal(date){return D.gratitudeHistory.find(x=>x.entry_date===date)||null}
@@ -314,7 +392,7 @@ function calendar(){const y=calendarCursor.getFullYear(),m=calendarCursor.getMon
 function journalCalendar(){const y=calendarCursor.getFullYear(),m=calendarCursor.getMonth(),first=new Date(y,m,1),last=new Date(y,m+1,0),start=first.getDay(),days=last.getDate(),set=new Set(D.gratitudeHistory.map(x=>x.entry_date)),cells=[];for(let i=0;i<start;i++)cells.push('<div></div>');for(let d=1;d<=days;d++){const ds=`${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;cells.push(`<button class="cal-day" data-journal-date="${ds}">${d}${set.has(ds)?'<i class="record-dot"></i>':""}</button>`)}openModal("기록 날짜 선택",`<div class="calendar-head"><button class="ghost" data-jcal="-1">‹</button><b>${y}년 ${m+1}월</b><button class="ghost" data-jcal="1">›</button></div><div class="week-head">${["일","월","화","수","목","금","토"].map(x=>`<span>${x}</span>`).join("")}</div><div class="small-calendar-grid">${cells.join("")}</div>`)}
 
 const pages={home,shop,appointments,customers,consultations,treatments,photos,passes,programs,products,inventory,sales,expenses,settlement,marketing,reviews,documents,yuni,goals,monthly,weekly,today:todayPlan,projects,calendar,habits,gratitude,budget,sns,assistant,settings};
-function render(page){currentPage=page;$("#title").textContent=names[page]||"YE PLATFORM";$("#area").textContent=page==="home"?"YE PLATFORM · v1.4":(["yuni","goals","monthly","weekly","today","projects","calendar","habits","gratitude","budget","sns"].includes(page)?"유니":"예에스테틱");const fn=pages[page]||home;$("#content").innerHTML=fn();$$("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));if(innerWidth<781)$("#side").classList.remove("open")}
+function render(page){currentPage=page;$("#title").textContent=names[page]||"YE PLATFORM";$("#area").textContent=page==="home"?"YE PLATFORM · v1.5":(["yuni","goals","monthly","weekly","today","projects","calendar","habits","gratitude","budget","sns"].includes(page)?"유니":"예에스테틱");const fn=pages[page]||home;$("#content").innerHTML=fn();$$("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));if(innerWidth<781)$("#side").classList.remove("open")}
 function shiftJournal(n){const d=new Date(selectedJournalDate+"T00:00:00");d.setDate(d.getDate()+n);selectedJournalDate=d.toISOString().slice(0,10);render("gratitude")}
 function selectJournal(date){selectedJournalDate=date;closeModal();render("gratitude")}
 async function saveJournal(){if(preview)return toast("실제 로그인 후 저장됩니다.");const records=Array.from({length:30},(_,i)=>$(`#record_${i+1}`)?.value.trim()).filter(Boolean),gratitudes=Array.from({length:30},(_,i)=>$(`#gratitude_${i+1}`)?.value.trim()).filter(Boolean),payload={user_id:user.id,entry_date:selectedJournalDate,gratitude_1:gratitudes[0]||null,gratitude_2:gratitudes[1]||null,gratitude_3:gratitudes[2]||null,reflection:JSON.stringify({records,insight:$("#insight")?.value||"",good_point:$("#good")?.value||"",improve_point:$("#bad")?.value||"",tomorrow_goal:$("#tomorrow")?.value||"",selfcare_note:$("#selfcare")?.value||"",gratitudes})},existing=getJournal(selectedJournalDate);const res=existing?await client.from("yuni_gratitude").update(payload).eq("id",existing.id).eq("user_id",user.id):await client.from("yuni_gratitude").insert(payload);if(res.error)return toast("저장 오류: "+res.error.message);toast("저장되었습니다.");await loadAll();render("gratitude")}
@@ -326,6 +404,8 @@ function openSimpleForm(type){
  const prodo=`<option value="">제품 선택</option>${D.products.map(p=>`<option value="${p.id}">${p.name}</option>`).join("")}`;
  const btn=t=>`<button class="primary full" data-save="${t}" style="margin-top:15px">저장</button>`;
  const forms={
+ "business-income":["입금 등록",`<label class="label">날짜<input id="fDate" type="date" class="control" value="${todayISO()}"></label><label class="label">구분<select id="fSaleType" class="control"><option>관리</option><option>제품</option><option>이용권</option><option>기타</option></select></label><label class="label">고객(선택)<select id="fCustomer" class="control">${co}</select></label><label class="label">금액<input id="fAmount" type="number" class="control" inputmode="numeric" placeholder="예: 120000"></label><label class="label">내용 메모<input id="fMemo" class="control" placeholder="예: 레디언스필 1회"></label><label class="label">결제상태<select id="fPaymentStatus" class="control"><option>결제완료</option><option>미결제</option></select></label>${btn("business-income")}`],
+ "business-expense":["출금 등록",`<label class="label">날짜<input id="fDate" type="date" class="control" value="${todayISO()}"></label><label class="label">분류<select id="fCategory" class="control"><option>재료비</option><option>제품매입</option><option>임대료</option><option>관리비</option><option>광고비</option><option>소모품</option><option>교육비</option><option>교통비</option><option>기타</option></select></label><label class="label">내용<input id="fDesc" class="control" placeholder="예: 관리 소모품 구입"></label><label class="label">금액<input id="fAmount" type="number" class="control" inputmode="numeric"></label><label class="label">결제수단<input id="fPaymentMethod" class="control" placeholder="카드 / 계좌 / 현금"></label>${btn("business-expense")}`],
  consultation:["피부상담 등록",`<label class="label">고객<select id="fCustomer" class="control">${co}</select></label><label class="label">피부타입<input id="fSkinType" class="control"></label><label class="label">핵심고민<input id="fConcern" class="control"></label><label class="label">생활습관<textarea id="fLifestyle" class="control" rows="3"></textarea></label><label class="label">추천관리<input id="fRecommendation" class="control"></label><label class="label">상담메모<textarea id="fNote" class="control" rows="4"></textarea></label>${btn("consultation")}`],
  treatment:["관리기록 등록",`<label class="label">고객<select id="fCustomer" class="control">${co}</select></label><label class="label">프로그램<select id="fProgram" class="control">${po}</select></label><label class="label">피부반응<textarea id="fSkinResponse" class="control" rows="3"></textarea></label><label class="label">사용제품<textarea id="fProductsUsed" class="control" rows="2"></textarea></label><label class="label">홈케어 안내<textarea id="fHomecare" class="control" rows="3"></textarea></label><label class="label">다음 권장일<input id="fNext" type="date" class="control"></label>${btn("treatment")}`],
  photo:["전후사진 등록",`<label class="label">고객<select id="fCustomer" class="control">${co}</select></label><label class="label">구분<select id="fPhotoType" class="control"><option>BEFORE</option><option>AFTER</option><option>정면</option><option>좌측</option><option>우측</option><option>근접</option></select></label><label class="label">메모<input id="fMemo" class="control"></label><div class="upload-zone"><input id="fAssetFile" type="file" accept="image/*"></div>${btn("photo")}`],
@@ -362,7 +442,26 @@ function openLegacyForm(type){
 }
 async function saveSimple(type){
  try{
-  if(type==="consultation"){const {error}=await client.from("ye_consultations").insert({user_id:user.id,consultation_date:todayISO(),customer_id:$("#fCustomer").value||null,skin_type:$("#fSkinType").value,concerns:$("#fConcern").value,lifestyle:$("#fLifestyle").value,recommendation:$("#fRecommendation").value,memo:$("#fNote").value});if(error)throw error}
+  if(type==="business-income"){
+    const amount=Number($("#fAmount").value||0);if(!amount)return toast("금액을 입력해주세요.");
+    const status=$("#fPaymentStatus").value;
+    const {error}=await client.from("sales").insert({
+      sale_date:$("#fDate").value,customer_id:$("#fCustomer").value||null,
+      sale_type:$("#fSaleType").value,gross_amount:amount,net_amount:amount,
+      outstanding_amount:status==="결제완료"?0:amount,payment_status:status,
+      memo:$("#fMemo").value||null,created_by:user.id,updated_by:user.id
+    });if(error)throw error
+  }
+  else if(type==="business-expense"){
+    const amount=Number($("#fAmount").value||0);if(!amount)return toast("금액을 입력해주세요.");
+    const {error}=await client.from("expenses").insert({
+      expense_date:$("#fDate").value,category:$("#fCategory").value||"기타",
+      description:$("#fDesc").value||"",amount,
+      payment_method:$("#fPaymentMethod").value||null,
+      created_by:user.id,updated_by:user.id
+    });if(error)throw error
+  }
+  else if(type==="consultation"){const {error}=await client.from("ye_consultations").insert({user_id:user.id,consultation_date:todayISO(),customer_id:$("#fCustomer").value||null,skin_type:$("#fSkinType").value,concerns:$("#fConcern").value,lifestyle:$("#fLifestyle").value,recommendation:$("#fRecommendation").value,memo:$("#fNote").value});if(error)throw error}
   else if(type==="treatment"){const pid=$("#fProgram").value||null;const {error}=await client.from("ye_treatments").insert({user_id:user.id,treatment_date:todayISO(),customer_id:$("#fCustomer").value||null,program_id:pid,program_name:pname(pid),skin_response:$("#fSkinResponse").value,products_used:$("#fProductsUsed").value,homecare_guide:$("#fHomecare").value,next_date:$("#fNext").value||null});if(error)throw error}
   else if(type==="photo"){const f=$("#fAssetFile").files[0];if(!f)return toast("사진을 선택해주세요.");const path=await uploadPrivate(f,"photos");const {error}=await client.from("ye_photos").insert({user_id:user.id,photo_date:todayISO(),customer_id:$("#fCustomer").value||null,photo_type:$("#fPhotoType").value,memo:$("#fMemo").value,storage_path:path,file_name:f.name});if(error)throw error}
   else if(type==="stock"){const id=$("#fProduct").value;if(!id)return toast("제품을 선택해주세요.");const p=D.products.find(x=>x.id===id),q=Number($("#fQty").value||0),kind=$("#fMoveType").value;let next=Number(p?.current_stock||0);if(kind==="입고")next+=q;else if(kind==="출고")next-=q;else next=q;if(next<0)return toast("재고가 0보다 작아질 수 없습니다.");let r=await client.from("products").update({current_stock:next,updated_by:user.id}).eq("id",id);if(r.error)throw r.error;r=await client.from("inventory_movements").insert({user_id:user.id,movement_date:todayISO(),product_id:id,movement_type:kind,quantity:q,before_qty:Number(p?.current_stock||0),after_qty:next,memo:$("#fMemo").value});if(r.error)throw r.error}
@@ -413,9 +512,19 @@ async function init(){
  const day=e.target.closest("[data-day]");if(day){selectedJournalDate=day.dataset.day;render("gratitude");return}
  const save=e.target.closest("[data-save]");if(save){await saveSimple(save.dataset.save);return}
  const action=e.target.closest("[data-action]");if(action){if(action.dataset.action==="journal-calendar"){journalCalendar();return}openSimpleForm(action.dataset.action);return}
+ const lm=e.target.closest("[data-ledger-month]");if(lm){businessLedgerMonth=lm.dataset.ledgerMonth;render("sales");return}
  const ex=e.target.closest("[data-export]");if(ex){
  const type=ex.dataset.export;
  if(type==="sales")exportCSV("매출.csv",["날짜","고객","구분","금액"],D.sales6.map(x=>[x.sale_date,cname(x.customer_id),x.sale_type,x.net_amount]));
+ if(type==="business-ledger"){
+   const month=businessLedgerMonth||todayISO().slice(0,7);
+   const arr=[
+    ...D.sales6.filter(x=>monthKey(x.sale_date)===month).map(x=>({date:x.sale_date,kind:"입금",category:x.sale_type||"매출",detail:x.memo||"",party:cname(x.customer_id),income:Number(x.net_amount||0),outflow:0})),
+    ...D.expenses6.filter(x=>monthKey(x.expense_date)===month).map(x=>({date:x.expense_date,kind:"출금",category:x.category||"기타",detail:x.description||x.memo||"",party:"",income:0,outflow:Number(x.amount||0)}))
+   ].sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+   let bal=0;arr.forEach(x=>{bal+=x.income-x.outflow;x.balance=bal});
+   exportCSV(`예에스테틱_입출금_${month}.csv`,["날짜","구분","분류","내용","고객/거래처","입금","출금","잔액"],arr.map(x=>[x.date,x.kind,x.category,x.detail,x.party,x.income||"",x.outflow||"",x.balance]));
+ }
  if(type==="expenses")exportCSV("지출.csv",["날짜","분류","내용","금액"],D.expenses6.map(x=>[x.expense_date,x.category,x.description,x.amount]));
  if(type==="inventory")exportCSV("재고.csv",["제품","현재재고","안전재고","판매가"],D.products.map(x=>[x.name,x.current_stock,x.safety_stock,x.sale_price]));
  if(type==="budget")exportCSV("유니가계부.csv",["날짜","구분","분류","내용","금액"],D.budget.map(x=>[x.entry_date,x.entry_type,x.category,x.description,x.amount]));
